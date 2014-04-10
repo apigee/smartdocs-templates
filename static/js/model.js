@@ -531,8 +531,8 @@ Apigee.APIModel.Editor = function() {
                     basicAuthCredentials = sessionStorage.apisBasicAuthDetails;
                 }
                 if (basicAuthCredentials !== "") {
-                    // Format of the apisBasicAuthDetails - api name@@@revision number@@@basic auth details.
-                    if (apiName==basicAuthCredentials.split("@@@")[0]) { // Check if apiName and revison number matches.
+                    // Format of the apisBasicAuthDetails - api name@@@basic auth details.
+                    if (apiName==basicAuthCredentials.split("@@@")[0]) {
                         userEmail = basicAuthCredentials.split("@@@")[1];
                         var emailString = userEmail;
                         if (emailString.length > 12) {
@@ -559,7 +559,7 @@ Apigee.APIModel.Editor = function() {
                 if (localStorage.apisOAuth2CredentialsDetails) {
                     var date = new Date();
                     var dateString = date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-                    var lsTimeStamp  = localStorage.apisBasicAuthDetails.split("@@@")[3];
+                    var lsTimeStamp  = localStorage.apisOAuth2CredentialsDetails.split("@@@")[2];
                     var currentTimeStamp = dateString;
                     var dtDiff = currentTimeStamp-lsTimeStamp;
                     var dtDiff = parseInt(self.dateDiff(new Date(currentTimeStamp),new Date(lsTimeStamp)));
@@ -869,10 +869,22 @@ Apigee.APIModel.Editor = function() {
         }
         if (selectedAuthScheme  == "basicauth") { // Add basic details in send request proxy API call.
             if (basicAuth) {
+                if(localStorage.apisBasicAuthDetails && apiName==localStorage.apisBasicAuthDetails.split("@@@")[0]) {
+                    if (basicAuth != localStorage.apisBasicAuthDetails.split("@@@")[2]) {
+                        basicAuth = localStorage.apisBasicAuthDetails.split("@@@")[2]
+                        jQuery("[data-role='basic_auth_container']").find(".link_open_basicauth").html(localStorage.apisBasicAuthDetails.split("@@@")[1]);
+                    }
+                }
                 headersList.push({"name" : "Authorization", "value" : basicAuth});
             }
         } else { // Add OAuth 2 details in send request proxy API call.
             if (oauth2Credentials != null) {
+                if (localStorage.apisOAuth2CredentialsDetails && apiName==localStorage.apisOAuth2CredentialsDetails.split("@@@")[0]) {
+                    var credentialObj = jQuery.parseJSON(localStorage.apisOAuth2CredentialsDetails.split("@@@")[1]);
+                    if (credentialObj.accessToken != oauth2Credentials.accessToken) {
+                        oauth2Credentials = credentialObj
+                    }
+                }
                 if (oauth2Credentials.accessTokenType == "query") { // Add OAuth 2 details in the query param.
                     var paramName = (oauth2Credentials.accessToeknParamName == "") ? "oauth_token" : oauth2Credentials.accessToeknParamName;
                     var separator = (queryParamString == "") ? "?"  : "&";
@@ -1686,6 +1698,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
                 }
                 jsonBody += ', "parameters": [' + paramString + ' ]';
             }
+
             jsonBody += ', "body": {';
             jsonBody += '"parameters": [';
             jsonBody += constructParams('body');
@@ -1695,13 +1708,14 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             jsonBody += constructParams('attachments');
             jsonBody += ' ]';
 
+            jsonBody += ', "contentType":"' + contentTypeValue + '"';
             // Request payload sample contruction.
             if (jQuery('[data-role="request-payload-example"]').length) {
                 var requestPayload = JSON.stringify(window.apiModelEditor.getRequestPayLoad());
                 requestPayload = requestPayload.substring(1,requestPayload.length-1); //Check if this required.
                 requestPayload = self.escapeSpecialChars(requestPayload)
                 //jsonBody += ', "requestBody": "' + requestPayload +'"';
-                jsonBody += ', "contentType":"' + contentTypeValue + '", "sample" :"'+requestPayload +'"';
+                jsonBody += ', "sample" :"'+requestPayload +'"';
             }
 
             //jsonBody += '"customAttributes" : [';
@@ -1764,7 +1778,12 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
         }
 
         var headersList = [];
-        // Basic auth info.
+        if(localStorage.orgAdminBasicAuthDetails) {
+            if (basicAuth != localStorage.orgAdminBasicAuthDetails.split("@@@")[0]) {
+                basicAuth = localStorage.orgAdminBasicAuthDetails.split("@@@")[0];
+                jQuery(".admin_auth_section a.auth_admin_email").html(localStorage.orgAdminBasicAuthDetails.split("@@@")[1]);
+            }
+        }
         headersList.push({"name" : "Authorization", "value" : basicAuth});
         jQuery("#working_alert").fadeIn();
         operationPath = Apigee.APIModel.proxyURL+"?targeturl="+operationPath;
