@@ -1,0 +1,22 @@
+header {
+    background-color: #FF4300;
+    height: 48px;
+    right: 0;
+    left: 0;
+    z-index: 9;
+    margin-bottom: 0;
+    color: #ffffff;
+    overflow: visible;
+    position: fixed;
+    top:0;
+}
+header .content {
+    width: 946px;
+    margin: 0 auto;
+}
+header .logo_container {
+    padding: 10px 0 13px 13px;
+    margin-left: -2px;
+    height: 48px;
+    float: left;
+}

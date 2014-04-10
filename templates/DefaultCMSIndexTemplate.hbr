@@ -1,0 +1,51 @@
+<!-- Main container -->
+<div class="row" id="index_container">
+    <!-- Main content -->
+    <div class="col-sm-9" id="index_content">
+        <div class="col-sm-12">
+            <!-- API display name and release version section -->
+            <div class="clearfix">
+                <h2>{{#if displayName}}{{displayName}}{{else}}{{name}}{{/if}}</h2>
+                {{#if releaseVersion}}
+                <span class="version"> v{{releaseVersion}}</span>{{/if}}
+            </div>
+            {{#tagged-resource this.resources}}
+            {{#each taggedResources}}
+            <h3>{{tagName}}</h3>
+            <div class="method_table">
+                <div class="method_title clearfix">
+                    <div class="method_data title">Method</div>
+                    <div class="method_data description">Description</div>
+                </div>
+                {{#each resources}}
+                {{#if methods}}
+                {{#each methods}}
+                <div class="method_details clearfix">
+                    <div class="method_data title">
+                        <p class="verb {{verb}}" data-role="verb">{{verb}}</p>
+                        {{#if authSchemes}}
+                        <span class="icon_lock" title="This method needs authentication."></span>
+                        {{else}}
+                        <span class="icon_lock" style="visibility:hidden" title="This method needs authentication."></span>
+                        {{/if}}
+                        <a data-role="method_name" title="View method details." href="../{{../revisionNumber}}/resources/{{../id}}/methods/{{id}}/doc">{{#if displayName}}{{displayName}}{{else}}{{name}}{{/if}}</a>
+                        <p data-role="resource_path" class="resource_path" title="{{../path}}">{{../path}}</p>
+                    </div>
+                    <div class="method_data description">
+                    {{{description}}}
+                    </div>
+                </div>
+                {{/each}}
+                {{/if}}
+                {{/each}}
+            </div>
+            {{/each}}
+            {{/tagged-resource}}
+        </div>
+    </div>
+</div>
+<script>
+    var Apigee = Apigee || {}; // Look for a namespace 'Apigee', if it is not there, creates an empty one.
+    Apigee.APIModel = Apigee.APIModel || {}; // Look for a namespace 'APIModel' under 'Apigee', if it is not there, creates an empty one.
+    Apigee.APIModel.methodType = "index";
+</script>
