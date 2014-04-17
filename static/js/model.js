@@ -356,9 +356,11 @@ Apigee.APIModel.Editor = function() {
         // Template parameter releated changes.
         methodURLElement = jQuery("[data-role='method_url_container']");
         // Add tooltip to template params.
-        methodURLElement.html(methodURLElement.html().replace(/\{/g,"<span data-toggle='tooltip' data-original-title=''><input value='{").replace(/\}/g,"}' /><span></span></span>"));
-        methodURLElement.find("input").each(function() {
-            jQuery(this).siblings("span").html(jQuery(this).val()).attr("data-role",jQuery(this).val());
+
+        methodURLElement.html(methodURLElement.html().replace(/\{/g,"<span data-toggle='tooltip' data-original-title=''><span class='template_param' contenteditable='true'>{").replace(/\}/g,"}</span><span></span></span>"));
+
+        methodURLElement.find("span.template_param").each(function() {
+            jQuery(this).siblings("span").attr("data-role",jQuery(this).text());
         });
         // Create a sibling node to each template param and add original value to the siblings.
         // Original value will be used while validating template params.
@@ -366,7 +368,7 @@ Apigee.APIModel.Editor = function() {
             var templateParamName = jQuery(this).find("[data-role='name']").html();
             var templateParamDescription = jQuery(this).find("[data-role='description']").html();
             jQuery("[data-toggle='tooltip']").each(function() {
-                var curElement = jQuery(this).find("span").data("role");
+                var curElement = jQuery(this).find("span:eq(1)").data("role");
                 if (curElement) {
                     curElement = curElement.substring(1,curElement.length-1);
                     if (curElement == templateParamName) {
@@ -385,12 +387,12 @@ Apigee.APIModel.Editor = function() {
             for (var i=0; i<templateParams.length; i++) {
                 var paramName = templateParams[i].name;
                 var paramValue = templateParams[i].value;
-                jQuery("[data-role='method_url_container'] input").each(function() {
+                jQuery("[data-role='method_url_container'] span.template_param").each(function() {
                     var spanElement = jQuery(this).siblings("span");
                     var inputElement = jQuery(this);
                     if(spanElement.attr('data-role') == paramName) {
-                        inputElement.val(paramValue);
-                        spanElement.html(paramValue);
+                        inputElement.html(paramValue);
+                        //spanElement.html(paramValue);
                     }
                 });
             }
@@ -444,7 +446,14 @@ Apigee.APIModel.Editor = function() {
      * @return {Void} opens a new window to make OAuth dance.
      */
     this.renderCallbackURL= function(data) {
-        window.open(data.authUrl, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
+        if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
+            var oauth2AuthUrlPart1 = data.authUrl.split("redirect_uri=")[0];
+            var oauth2AuthUrlPart2 = data.authUrl.split("redirect_uri=")[1];
+            oauth2AuthUrlPart2 = oauth2AuthUrlPart1+"redirect_uri="+encodeURIComponent(Drupal.settings.devconnect_docgen.oauth2AuthUrl+"?org="+Apigee.APIModel.organizationName+"&api="+Apigee.APIModel.apiName+"&revision="+Apigee.APIModel.revisionNumber) + "&client_id=" + oauth2AuthUrlPart2.split("client_id=")[1];
+            window.open(oauth2AuthUrlPart2, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
+        } else {
+            window.open(data.authUrl, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
+        }
     };
     /**
      * Error callback method of a OAuth2 web serser auth URL AJAX call.
@@ -490,16 +499,16 @@ Apigee.APIModel.Editor = function() {
      * @param {HTML Element} element - Template parameter input element.
      * @return {Void} sets the input element's width based on number of charecters.
      */
-    this.updateTemplateParamWidth= function(element) {
-        var value = element.val();
+    this.updateTemplateParamText= function(element) {
+        var value = element.text();
         var size  = value.length;
         if (size == 0) {
-            size = 8.3; // average width of a char.
+            element.html("&nbsp;")
         } else {
-            size = Math.ceil(size*8.3); // average width of a char.
+            if (element.html().indexOf("&nbsp;") != -1) {
+                element.slice(element.html().indexOf("&nbsp;"),element.html().indexOf("&nbsp;")+1);
+            }
         }
-        element.siblings("span").html(element.val());
-        element.css('width',size); // Set the width.
     };
     /**
      * This method updates the authentication container based on the auth type value to make Send request AJAX call.
@@ -594,7 +603,8 @@ Apigee.APIModel.Editor = function() {
                 if (custemTokenSession) { // Check if Custom token details stored in session storage.
                     // Format of the revisionsCustomTokenDetails - api name@@@revision number@@@oauth 2 details.
                     if (apiName==custemTokenSession.split("@@@")[0] && revisionNumber==custemTokenSession.split("@@@")[1]) { // Check if apiName and revison number matches.
-                        custemTokenCredentials = custemTokenSession.split("@@@")[2]+ "@@@" + custemTokenSession.split("@@@")[3]+ "@@@" + custemTokenSession.split("@@@")[4];
+                        customTokenObject = JSON.parse(custemTokenSession.split("@@@")[2])
+                        //custemTokenCredentials = custemTokenSession.split("@@@")[2]+ "@@@" + custemTokenSession.split("@@@")[3]+ "@@@" + custemTokenSession.split("@@@")[4];
                         var selected = (apiName == sessionStorage.selectedAuthScheme.split("@@@")[0] && revisionNumber == sessionStorage.selectedAuthScheme.split("@@@")[1] && sessionStorage.selectedAuthScheme.split("@@@")[2]== "customtoken") ? "selected" : "";
                         if (selected != "") {
                             jQuery("[data-role='custom_token_container']").addClass(selected);
@@ -653,11 +663,17 @@ Apigee.APIModel.Editor = function() {
                 jQuery("#modal_container.modal .error_container").html(errMessage+"Please try again.").show();
             }
         } else if (parentClass.attr('data-role') == 'oauth2_modal') {
-            var windowLocation = window.location.href;
-            windowLocation = windowLocation.split("/resources/")[0];
+            var oauth2Url = window.location.href;
+            oauth2Url = windowLocation.split("/resources/")[0];
+            if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
+                oauth2Url = Drupal.settings.devconnect_docgen.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
+            }
+            if (Apigee.APIModel.apiModelBaseUrl) {
+                oauth2Url = Apigee.APIModel.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
+            }
             self.closeAuthModal();
             // Make an AJAX call to retrieve an auth URL.
-            self.makeAJAXCall({"url":windowLocation+"/authschemes/oauth2webserverflow/authUrl",dataType:"json", "callback":self.renderCallbackURL, "errorCallback" :self.handleOAuth2Failure});
+            self.makeAJAXCall({"url":oauth2Url+"/authschemes/oauth2webserverflow/authUrl",dataType:"json", "callback":self.renderCallbackURL, "errorCallback" :self.handleOAuth2Failure});
         } else if (parentClass.attr('data-role') == 'custom_token_modal') {
             customTokenObject = {};
             customTokenObject.tokenType = (jQuery("[data-role='custom_token_modal']").find("[data-role='header']").attr('checked') == "checked") ? "header" : "query";
@@ -734,16 +750,16 @@ Apigee.APIModel.Editor = function() {
         jQuery("#working_alert").fadeIn(); // Show working alert message.
         jQuery("#request_response_container .response").html("<p>Make a request and see the response.</p>");
         jQuery("#request_response_container .request").html("<p>Make a request and see the response.</p>");
-        var templateInputElements = jQuery("[data-role='method_url_container'] input");
+        var templateInputElements = jQuery("[data-role='method_url_container'] span.template_param");
         if (templateInputElements.length >= 1) { // Check if template param available.
             // Stores the template param name and values in local storage, if user modified the default template param value.
             // Loop through the template params and check against local stroage variable.
             if (localStorage.hasOwnProperty('templateParams')) {
                 var templateParams = JSON.parse(localStorage.getItem('templateParams'));
-                jQuery("[data-role='method_url_container'] input").each(function() {
+                jQuery("[data-role='method_url_container'] span.template_param").each(function() {
                     var inputElementName = jQuery(this).siblings("span").attr('data-role');
-                    var inputElementValue = jQuery(this).val();
-                    if (inputElementName == inputElementValue || inputElementValue == "") {
+                    var inputElementValue = jQuery(this).text();
+                    if (inputElementName == inputElementValue || inputElementValue == "" || jQuery(this).html() == "&nbsp;") {
                         isTemplateParamMissing = true;
                         templateParamMissing.push(inputElementName.substring(1,inputElementName.length-1));
                         jQuery(this).addClass('error');
@@ -772,6 +788,7 @@ Apigee.APIModel.Editor = function() {
                 });
                 localStorage.setItem("templateParams",JSON.stringify(templateParamArray)); // Create local storage variable and assign the values.
             }
+
         }
         //change the variable name to Target URL.
         var urlToTest = jQuery("[data-role='method_url_container']").text();
@@ -878,7 +895,7 @@ Apigee.APIModel.Editor = function() {
                 headersList.push({"name" : "Authorization", "value" : basicAuth});
             }
         } else { // Add OAuth 2 details in send request proxy API call.
-            if (oauth2Credentials != null) {
+            if (selectedAuthScheme  == "oauth2" && oauth2Credentials != null) {
                 if (localStorage.apisOAuth2CredentialsDetails && apiName==localStorage.apisOAuth2CredentialsDetails.split("@@@")[0]) {
                     var credentialObj = jQuery.parseJSON(localStorage.apisOAuth2CredentialsDetails.split("@@@")[1]);
                     if (credentialObj.accessToken != oauth2Credentials.accessToken) {

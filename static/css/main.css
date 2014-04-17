@@ -219,7 +219,11 @@
     font-size: 14px;
     word-wrap: break-word;
 }
-#method_content [data-role='method_url_container'] input {
+[data-role='method_url_container'] span span span {
+    display: none;
+}
+[data-role='method_url_container'] span span span.template_param {
+    display: inline-block;
     padding: 0;
     border: none;
     box-shadow: none;
@@ -232,8 +236,8 @@
     text-align: center;
     margin:0;
 }
-[data-role='method_url_container'] span span span {
-    display: none;
+[data-role='method_url_container'] span span span.template_param.error {
+    border-bottom: solid thin #B94A48;
 }
 
 
@@ -250,7 +254,7 @@
 #method_content ul.method_table li:after, #index_content ul.method_table li:after {
     clear: both;
 }
-#method_content ul.method_table li:after, #method_content ul.method_table li:before, #index_content ul.method_table li:after, #index_content ul.method_table li:before {
+#method_content ul.method_table > li:after, #method_content ul.method_table > li:before, #index_content ul.method_table > li:after, #index_content ul.method_table > li:before {
     content: "";
     display: table;
     line-height: 0;

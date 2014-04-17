@@ -94,17 +94,11 @@ Apigee.APIModel.initMethodsPageEvents = function() {
         'placement': 'top'
     });
     // Template params related event handlers.
-    jQuery("[data-role='method_url_container'] input")
-        .each(function() {
-            apiModelMethods.updateTemplateParamWidth(jQuery(this));
-        })
+    jQuery("[data-role='method_url_container'] span.template_param")
         .keyup(function(e){
             jQuery(this).removeClass("error");
             apiModelMethods.clearErrorContainer();
-            apiModelMethods.updateTemplateParamWidth(jQuery(this));
-        })
-        .focus(function(){
-            this.select();
+            apiModelMethods.updateTemplateParamText(jQuery(this));
         });
     jQuery("[data-role='method_url_container'] input")
     // Select the value of template param on click.
