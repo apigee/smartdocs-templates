@@ -94,21 +94,16 @@ Apigee.APIModel.initMethodsPageEvents = function() {
         'placement': 'top'
     });
     // Template params related event handlers.
-    jQuery("[data-role='method_url_container'] span.template_param")
-        .keyup(function(e){
-            jQuery(this).removeClass("error");
-            apiModelMethods.clearErrorContainer();
-            apiModelMethods.updateTemplateParamText(jQuery(this));
-        });
-    jQuery("[data-role='method_url_container'] input")
-    // Select the value of template param on click.
-    jQuery("[data-role='method_url_container'] input")
-    // Query/Header params related event handlers.
+    jQuery("[data-role='method_url_container'] span.template_param").keyup(function(e){
+        var rightArrow = (e.which == 39) ? true : false;
+        jQuery(this).removeClass("error");
+        apiModelMethods.clearErrorContainer();
+        apiModelMethods.updateTemplateParamText(jQuery(this),rightArrow);
+    });
     jQuery(".method_table .method_details .method_data input").keyup(function(e){
         jQuery(this).removeClass("error");
         apiModelMethods.clearErrorContainer();
     });
-
     // Send request related
     jQuery("a.link_reset_default").unbind("click").click(apiModelMethods.resetFields);
     jQuery("#send_request").unbind("click").click(apiModelMethods.sendRequest);

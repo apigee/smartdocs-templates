@@ -499,15 +499,22 @@ Apigee.APIModel.Editor = function() {
      * @param {HTML Element} element - Template parameter input element.
      * @return {Void} sets the input element's width based on number of charecters.
      */
-    this.updateTemplateParamText= function(element) {
+    this.updateTemplateParamText= function(element, isRightArrow) {
         var value = element.text();
         var size  = value.length;
         if (size == 0) {
+            size = 8.4; // average width of a char.
             element.html("&nbsp;")
         } else {
+            size = Math.ceil(size*8.4); // average width of a char.
             if (element.html().indexOf("&nbsp;") != -1) {
                 element.slice(element.html().indexOf("&nbsp;"),element.html().indexOf("&nbsp;")+1);
             }
+        }
+        if (isRightArrow) {
+            element.css('width',size); // Set the width.
+        } else {
+            element.css('width','auto');
         }
     };
     /**
