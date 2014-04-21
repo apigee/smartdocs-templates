@@ -64,20 +64,15 @@ Apigee.APIModel.initMethodsAuthDialogsEvents = function() {
         apiModelMethods.getCustomTokenCredentials();
         jQuery("[data-role='custom_token_modal']").modal('show');
     });
-
     jQuery("[data-role='basic_auth_modal']").find(".button_close_modal").unbind("click").click(apiModelCommon.closeAuthModal);
     jQuery("[data-role='basic_auth_modal']").find(".button_save_modal").unbind("click").click(apiModelMethods.saveAuthModal);
     jQuery("[data-role='oauth2_modal']").find(".button_close_modal").unbind("click").click(apiModelCommon.closeAuthModal);
     jQuery("[data-role='oauth2_modal']").find(".button_save_modal").unbind("click").click(apiModelMethods.saveAuthModal);
     jQuery("[data-role='custom_token_modal']").find(".button_close_modal").unbind("click").click(apiModelCommon.closeAuthModal);
     jQuery("[data-role='custom_token_modal']").find(".button_save_modal").unbind("click").click(apiModelMethods.saveAuthModal);
-
-
-
     jQuery("[data-role='basic_auth_container'] .icon-remove").unbind("click").click("basicauth",apiModelMethods.clearSessionStorage);
     jQuery("[data-role='oauth2_container'] .icon-remove").unbind("click").click("oauth2",apiModelMethods.clearSessionStorage);
     jQuery("[data-role='custom_token_container'] .icon-remove").unbind("click").click("customtoken",apiModelMethods.clearSessionStorage);
-
     jQuery(".authentication .well").unbind("click").click(apiModelMethods.toggleAuthScheme);
     jQuery("#modal_container.modal input").keyup(function(e){
         jQuery(this).removeClass("error");
@@ -100,7 +95,7 @@ Apigee.APIModel.initMethodsPageEvents = function() {
         apiModelMethods.clearErrorContainer();
         apiModelMethods.updateTemplateParamText(jQuery(this),rightArrow);
     });
-    jQuery(".method_table .method_details .method_data input").keyup(function(e){
+    jQuery("[data-role='query-param-list'] input, [data-role='header-param-list'] input, [data-role='body-param-list'] input, [data-role='param-group-list'] input, [data-role='response_errors_list'] input, [data-role='attachments-list'] input").keyup(function(e){
         jQuery(this).removeClass("error");
         apiModelMethods.clearErrorContainer();
     });
@@ -132,7 +127,6 @@ Apigee.APIModel.inlineEditPageEvents = function() {
     jQuery("a.auth_admin_email").click(apiModelInlineEdit.reOpenAdminAuthDetails);
     // Editable fields event handlers.
     jQuery("[contenteditable='true'], [data-allow-edit='true']").unbind("hover").hover(apiModelInlineEdit.handleEditPropertiesMouseOver, apiModelInlineEdit.handleEditPropertiesMouseOut);
-    jQuery("[data-role='method_url_container'] input").unbind("click").click(apiModelInlineEdit.handleTempleParamEdit);
     // Show, Save, Cancel event handlers.
     jQuery("[contenteditable='true'], [data-allow-edit='true'], .resource_description").unbind("click").click(apiModelInlineEdit.handleEditableElementsClick);
     jQuery("a.allow_edit.ok").unbind("click").click(apiModelInlineEdit.makeAPICall);
