@@ -232,7 +232,7 @@ Apigee.APIModel.Common = function() {
             }
           }
           if (browserName == "msie") {
-            if (version <= 11 ) {
+            if (version < 10 ) {
               showMessage();
             }
           }
@@ -391,8 +391,7 @@ Apigee.APIModel.Editor = function() {
                     var spanElement = jQuery(this).siblings("span");
                     var inputElement = jQuery(this);
                     if(spanElement.attr('data-role') == paramName) {
-                        inputElement.html(paramValue);
-                        //spanElement.html(paramValue);
+                        inputElement.text(jQuery.trim(paramValue));
                     }
                 });
             }

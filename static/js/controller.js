@@ -101,6 +101,9 @@ Apigee.APIModel.initMethodsPageEvents = function() {
             var code = e.keyCode || e.which;
             var rightArrow = (code == 39) ? true : false;
             apiModelMethods.updateTemplateParamWidth(jQuery(this),rightArrow);
+        })
+        .blur(function(e){
+            jQuery(this).text(jQuery.trim(jQuery(this).text()));
         });
     jQuery("[data-role='query-param-list'] input, [data-role='header-param-list'] input, [data-role='body-param-list'] input, [data-role='param-group-list'] input, [data-role='response_errors_list'] input, [data-role='attachments-list'] input").keyup(function(e){
         jQuery(this).removeClass("error");
