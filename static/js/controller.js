@@ -89,12 +89,19 @@ Apigee.APIModel.initMethodsPageEvents = function() {
         'placement': 'top'
     });
     // Template params related event handlers.
-    jQuery("[data-role='method_url_container'] span.template_param").keyup(function(e){
-        var rightArrow = (e.which == 39) ? true : false;
-        jQuery(this).removeClass("error");
-        apiModelMethods.clearErrorContainer();
-        apiModelMethods.updateTemplateParamText(jQuery(this),rightArrow);
-    });
+    jQuery("[data-role='method_url_container'] span.template_param")
+        .keyup(function(e){
+            var rightArrow = (e.which == 39) ? true : false;
+            jQuery(this).removeClass("error");
+            apiModelMethods.clearErrorContainer();
+            apiModelMethods.updateTemplateParamText(jQuery(this));
+            apiModelMethods.updateTemplateParamWidth(jQuery(this),rightArrow);
+        })
+        .keypress(function(e){
+            var code = e.keyCode || e.which;
+            var rightArrow = (code == 39) ? true : false;
+            apiModelMethods.updateTemplateParamWidth(jQuery(this),rightArrow);
+        });
     jQuery("[data-role='query-param-list'] input, [data-role='header-param-list'] input, [data-role='body-param-list'] input, [data-role='param-group-list'] input, [data-role='response_errors_list'] input, [data-role='attachments-list'] input").keyup(function(e){
         jQuery(this).removeClass("error");
         apiModelMethods.clearErrorContainer();
