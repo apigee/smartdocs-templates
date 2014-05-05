@@ -59,6 +59,15 @@ Apigee.APIModel.Common = function() {
         M= M? [M[1], M[2]]: [N, navigator.appVersion, '-?'];
         return M;
     })();
+    showMessage = function(msg) {
+        theParent = document.getElementsByTagName("body")[0]
+        theKid = document.createElement("div");
+        theKid.setAttribute("style","height:20px;width:100%;background-color:#F9F6C5;text-align:center;position:fixed;z-index:999;");
+        theKid.innerHTML = msg;
+        theParent.appendChild(theKid);
+        theParent.insertBefore(theKid, theParent.firstChild);
+    };
+
     // Public methods.
     /**
      * This method makes an AJAX call and handles the success/failure callback.
@@ -66,26 +75,40 @@ Apigee.APIModel.Common = function() {
      * @return {Void} make an AJAX call and handles succces and failure callback.
      */
     this.makeAJAXCall = function(request) {
-        jQuery.ajax({
-            url:request.url,
-            cache: false,
-            type:(request.type) ? request.type : "get", // Type of a method, "get" by default.
-            data:(request.data) ? request.data : null, // Request payload of a method, "null" by default.
-            contentType: (request.contentType) ? request.contentType : "application/x-www-form-urlencoded;charset=utf-8",
-            // Set custom headers, if any.
-            beforeSend : function(req) {
-                if (request.headers) {
-                    for (var i=0,l=request.headers.length; i<l; i++) {
-                        var header = request.headers[i];
-                        req.setRequestHeader(header.name, header.value);
+        if (jQuery.browser.msie && window.XDomainRequest && parseInt(jQuery.browser.version) <= 9) {
+            var requestURL = request.url;
+            var defaultMethodType = (request.type) ? request.type : "get";
+            if (requestURL.indexOf("targeturl") != -1) {
+                var requestVerb = (request.type) ? request.type : "get";
+                requestURL += "&method="+requestVerb;
+                defaultMethodType = "POST";
+            }
+            if (request.headers) {
+                var headersList = request.headers;
+                var headersString = "{";
+                for (var i=0,l=headersList.length; i<l; i++) {
+                    headersString += '"' + headersList[i].name + '" : "' + headersList[i].value +'"';
+                    if (l != 1 && i != (l-1)) {
+                        headersString += ',';
                     }
                 }
-            },
-            // Success callback handler of an AJAX call.
-            // Invoke the the request's callback method with the response content.
-            success:function(data, textStatus, jqXHR) {
-                if (request.dataType != "json") {
-                    request.callback(jqXHR.responseText);
+                headersString += "}";
+                headersString = encodeURIComponent(headersString);
+                requestURL += "&headers="+headersString;
+            }
+            var methodData = (request.data) ? request.data : null;
+            xdr = new XDomainRequest();
+            xdr.onload = function() {
+                var data;
+                var forJSON = true;
+                try {
+                    data = jQuery.parseJSON(xdr.responseText);
+                }
+                catch (e) {
+                    forJSON = false;
+                }
+                if (!forJSON) {
+                    request.callback(xdr.responseText);
                 } else {
                     if (data) {
                         var responseStatusCode = data.responseStatusCode
@@ -93,31 +116,86 @@ Apigee.APIModel.Common = function() {
                             if (parseInt(responseStatusCode) >= 400) {
                                 if (request.errorCallback) {
                                     request.errorCallback(responseStatusCode);
+                                    jQuery("#working_alert").fadeOut(); // Hide working alert message.
                                     return;
                                 } else {
                                     request.callback(data);
+                                    jQuery("#working_alert").fadeOut(); // Hide working alert message.
                                     return;
                                 }
                             }
                         }
+                        request.callback(data);
+                    } else {
+                        request.callback(xdr.responseText);
                     }
-                    request.callback(data);
                 }
-            },
-            // Error callback handler of an AJAX call.
-            // Invoke the request's error callback method, if any. Otherwise call the general callback method.
-            error: function(xhr, status, error) {
-                if (request.errorCallback) {
-                    request.errorCallback(xhr.status);
-                } else {
-                    request.callback(xhr.responseText);
-                }
-            },
-            // Gets called once an AJAX completes.
-            complete: function() {
                 jQuery("#working_alert").fadeOut(); // Hide working alert message.
             }
-        });
+            xdr.onerror = function() {
+                if (request.errorCallback) {
+                    request.errorCallback(xdr.responseText);
+                } else {
+                    request.callback(xdr.responseText);
+                }
+                jQuery("#working_alert").fadeOut(); // Hide working alert message.
+            }
+            xdr.open(defaultMethodType, requestURL);
+            xdr.send(methodData);
+        } else {
+            jQuery.ajax({
+                url:request.url,
+                cache: false,
+                type:(request.type) ? request.type : "get", // Type of a method, "get" by default.
+                data:(request.data) ? request.data : null, // Request payload of a method, "null" by default.
+                contentType: (request.contentType) ? request.contentType : "application/x-www-form-urlencoded;charset=utf-8",
+                // Set custom headers, if any.
+                beforeSend : function(req) {
+                    if (request.headers) {
+                        for (var i=0,l=request.headers.length; i<l; i++) {
+                            var header = request.headers[i];
+                            req.setRequestHeader(header.name, header.value);
+                        }
+                    }
+                },
+                // Success callback handler of an AJAX call.
+                // Invoke the the request's callback method with the response content.
+                success:function(data, textStatus, jqXHR) {
+                    if (typeof data != "object") {
+                        request.callback(jqXHR.responseText);
+                    } else {
+                        if (data) {
+                            var responseStatusCode = data.responseStatusCode
+                            if (responseStatusCode) {
+                                if (parseInt(responseStatusCode) >= 400) {
+                                    if (request.errorCallback) {
+                                        request.errorCallback(responseStatusCode);
+                                        return;
+                                    } else {
+                                        request.callback(data);
+                                        return;
+                                    }
+                                }
+                            }
+                            request.callback(data);
+                        }
+                    }
+                },
+                // Error callback handler of an AJAX call.
+                // Invoke the request's error callback method, if any. Otherwise call the general callback method.
+                error: function(xhr, status, error) {
+                    if (request.errorCallback) {
+                        request.errorCallback(xhr.status);
+                    } else {
+                        request.callback(xhr.responseText);
+                    }
+                },
+                // Gets called once an AJAX completes.
+                complete: function() {
+                    jQuery("#working_alert").fadeOut(); // Hide working alert message.
+                }
+            });
+        }
     };
     /**
      * This method closes the authentication modal dialog.
@@ -220,35 +298,35 @@ Apigee.APIModel.Common = function() {
         var browserNameAndVersion= navigator.sayswho.toString();
         var browserName = browserNameAndVersion.split("\,")[0].toLowerCase();
         var version = parseInt(browserNameAndVersion.split("\,")[1]);
+        var msg = "<p>You are using an unsupported browser. Please switch to Chrome, Firefox >= 10, Safari >= 6 or Internet Explorer >= 9. [ <a href='javascript:void(0)' onclick='apiModelCommon.hideUnsupportedBrowserMessage()'> Close</a> ]</p>";
         if ( browserName != "chrome") {
           if (browserName == "firefox") {
             if (version < 10) {
-              showMessage();
+              showMessage(msg);
             }
           }
           if (browserName == "safari") {
             if (version < 6 ) {
-              showMessage();
+              showMessage(msg);
             }
           }
           if (browserName == "msie") {
-            if (version < 10 ) {
-              showMessage();
+            if (version < 9 ) {
+              showMessage(msg);
             }
           }
         }
-        function showMessage() {
-          theParent = document.getElementsByTagName("body")[0]
-          theKid = document.createElement("div");
-          theKid.setAttribute("style","height:20px;width:100%;background-color:#F9F6C5;text-align:center;position:fixed;");
-          theKid.innerHTML = "<p>You are using an unsupported browser. Please switch to Chrome, Firefox >= 10, Safari >= 6 or Internet Explorer 11. [ <a href='javascript:void(0)' onclick='apiModelCommon.hideUnsupportedBrowserMessage()'> Close</a> ]</p>";
-          theParent.appendChild(theKid);
-          theParent.insertBefore(theKid, theParent.firstChild);
-        }
   };
   this.hideUnsupportedBrowserMessage = function() {
-    	document.getElementsByTagName("body")[0].getElementsByTagName("div")[0].style.display = "none";
-    	localStorage.setItem("unsupportedBrowserFlag","true");
+        document.getElementsByTagName("body")[0].getElementsByTagName("div")[0].style.display = "none";
+        localStorage.setItem("unsupportedBrowserFlag","true");
+  };
+  this.showUnsupportedAttachementAlertMessage = function() {
+        showMessage("<p>Attachement is not supported in IE9. Please switch to Chrome, Firefox >= 10, Safari >= 6 or Internet Explorer >= 10. [ <a href='javascript:void(0)' onclick='apiModelCommon.hideUnsupportedAttachementMessage()'> Close</a> ]</p>");
+  };
+  this.hideUnsupportedAttachementMessage = function() {
+      document.getElementsByTagName("body")[0].getElementsByTagName("div")[0].style.display = "none";
+      localStorage.setItem("unsupportedAttachmentFlag","true");
   };
   this.dateDiff = function (date1, date2) {
       var datediff = date1.getTime() - date2.getTime(); //store the getTime diff - or +
@@ -434,10 +512,11 @@ Apigee.APIModel.Editor = function() {
      * @return {Void} sets proxy URL value to local variable 'proxyURL'.
      */
     this.storeProxyURL = function(data) {
-        data = jQuery.parseJSON(data);
         Apigee.APIModel.proxyURL = data.proxyUrl;
         Apigee.APIModel.authUrl = data.authUrl;
-
+        if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
+            Apigee.APIModel.proxyURL += "/ie9";
+        }
     }
     /**
      * Success callback method of a OAuth2 web serser auth URL AJAX call.
@@ -468,7 +547,7 @@ Apigee.APIModel.Editor = function() {
         var tokensLength = Object.keys(defaultCustomTokenObject.tokenMap).length;
         jQuery("[data-role='custom_token_row']" ).each(function(index) {
             if(index > 0) {
-                $(this).remove();
+                jQuery(this).remove();
             }
         });
         if (tokensLength >= 1) {
@@ -928,11 +1007,17 @@ Apigee.APIModel.Editor = function() {
         }
         targetUrl = urlToTest;
         urlToTest = encodeURIComponent(urlToTest).replace(/\{.*?\}/g,"");
-
         urlToTest = Apigee.APIModel.proxyURL+"?targeturl="+urlToTest;
         // If a method has an attachment, we need to modify the standard AJAX the following way.
 
         if (jQuery("[data-role='attachments-list']").length) {
+            if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
+                if (localStorage.getItem("unsupportedAttachmentFlag") == null) {
+                    self.showUnsupportedAttachementAlertMessage();
+                }
+                jQuery("#working_alert").fadeOut();
+                return;
+            }
             if (jQuery('[data-role="request-payload-example"]').length) {
                 var requestPayLoad = "<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>";
                 jQuery("#formAttachment").append(requestPayLoad);
@@ -940,7 +1025,7 @@ Apigee.APIModel.Editor = function() {
             var formData = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
             jQuery.ajax(urlToTest, {
                 processData: false,
-                type: "POST",
+                type: methodVerb,
                 contentType: false,
                 data: formData,
                 success: function(data, textStatus, jqXHR) {
@@ -976,8 +1061,9 @@ Apigee.APIModel.Editor = function() {
             responseContainerElement.html("<strong> An internal error has occurred. Please retry your request.</strong>");
             return;
         }
-        data = jQuery.parseJSON(data); // Parse the JSON.
-
+        if (typeof data != "object") {
+            data = jQuery.parseJSON(data); // Parse the JSON.
+        }
         rawCode = unescape(data.responseContent); // Stores response content.
         //rawCode = jQuery.parseJSON(rawCode); //:TODO:: check the proxy and fix the issue and remove it.
         //rawCode = unescape(rawCode.responseContent); //:TODO:: check the proxy and fix the issue and remove it.
@@ -1397,7 +1483,9 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             var dataObj = "password="+ jQuery.trim(jQuery("[data-role='edit_auth_modal']").find("#inputPassword").val());
             if (Apigee.APIModel.authUrl != "null") {
                 var authUrl = Apigee.APIModel.authUrl.replace("{user}",encodeURIComponent(userEmail));
-                self.makeAJAXCall({"url": Apigee.APIModel.proxyURL+"?targeturl="+authUrl,type:"post",dataType:"json",data:dataObj,"contentType":"application/x-www-form-urlencoded","callback":self.saveAdminCredentials, "errorCallback" :self.showUnauthorizedInfo });
+                var headersList = [];
+                headersList.push({"name" : "Content-Type", "value" : "application/x-www-form-urlencoded"});
+                self.makeAJAXCall({"url": Apigee.APIModel.proxyURL+"?targeturl="+authUrl,type:"post",dataType:"json",data:dataObj,"callback":self.saveAdminCredentials, "errorCallback" :self.showUnauthorizedInfo,"headers":headersList });
             } else {
                 self.saveAdminCredentials();
             }
@@ -1817,9 +1905,10 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             }
         }
         headersList.push({"name" : "Authorization", "value" : basicAuth});
+        headersList.push({"name" : "Content-Type", "value" : "application/json"});
         jQuery("#working_alert").fadeIn();
         operationPath = Apigee.APIModel.proxyURL+"?targeturl="+operationPath;
-        self.makeAJAXCall({"url":operationPath,type:"put",dataType:"json","headers": headersList, data:jsonBody,"contentType":"application/json","callback":self.handleAPICallSuccess, "errorCallback" :self.handleUpdateFailure });
+        self.makeAJAXCall({"url":operationPath,type:"put",dataType:"json","headers": headersList, data:jsonBody,"callback":self.handleAPICallSuccess, "errorCallback" :self.handleUpdateFailure });
 
         jQuery(this).siblings("[contenteditable='true']").removeClass("edit");
         jQuery(this).siblings("a.allow_edit.cancel").hide();
