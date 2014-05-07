@@ -146,9 +146,10 @@ Apigee.APIModel.Common = function() {
             jQuery.ajax({
                 url:request.url,
                 cache: false,
-                type:(request.type) ? request.type : "get", // Type of a method, "get" by default.
-                data:(request.data) ? request.data : null, // Request payload of a method, "null" by default.
-                contentType: (request.contentType) ? request.contentType : "application/x-www-form-urlencoded;charset=utf-8",
+                type:(request.hasOwnProperty("type")) ? request.type : "get", // Type of a method, "get" by default.
+                data:(request.hasOwnProperty("data")) ? request.data : null, // Request payload of a method, "null" by default.
+                contentType: (request.hasOwnProperty("contentType")) ? request.contentType : "application/x-www-form-urlencoded;charset=utf-8",
+                processData: (request.hasOwnProperty("processData")) ? request.processData : true,
                 // Set custom headers, if any.
                 beforeSend : function(req) {
                     if (request.headers) {
@@ -1000,8 +1001,8 @@ Apigee.APIModel.Editor = function() {
                     var paramName = (oauth2Credentials.accessToeknParamName == "") ? "oauth_token" : oauth2Credentials.accessToeknParamName;
                     var separator = (queryParamString == "") ? "?"  : "&";
                     urlToTest += separator + paramName +"=" + oauth2Credentials.accessToken;
-                } else if (oauth2Credentials.accessTokenType == "header") { // Add OAuth 2 details in headers.
-                    headersList.push({"name" : "Authorization", "value" : oauth2Credentials.accessToken});
+                } else if (oauth2Credentials.accessTokenType == "bearer") { // Add OAuth 2 details in headers.
+                    headersList.push({"name" : "Authorization", "value" : "Bearer "+oauth2Credentials.accessToken});
                 }
             }
         }
@@ -1009,7 +1010,9 @@ Apigee.APIModel.Editor = function() {
         urlToTest = encodeURIComponent(urlToTest).replace(/\{.*?\}/g,"");
         urlToTest = Apigee.APIModel.proxyURL+"?targeturl="+urlToTest;
         // If a method has an attachment, we need to modify the standard AJAX the following way.
-
+        var bodyPayload = null;
+        var contentTypeValue = "application/x-www-form-urlencoded;charset=utf-8";
+        var processDataValue = true;
         if (jQuery("[data-role='attachments-list']").length) {
             if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
                 if (localStorage.getItem("unsupportedAttachmentFlag") == null) {
@@ -1022,31 +1025,18 @@ Apigee.APIModel.Editor = function() {
                 var requestPayLoad = "<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>";
                 jQuery("#formAttachment").append(requestPayLoad);
             }
-            var formData = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
-            jQuery.ajax(urlToTest, {
-                processData: false,
-                type: methodVerb,
-                contentType: false,
-                data: formData,
-                success: function(data, textStatus, jqXHR) {
-                    self.renderRequest(jqXHR.responseText)
-                },
-                error: function(xhr, status, error) {
-                    self.renderRequest(xhr.responseText)
-                },
-                complete: function() { // Gets called once an AJAX completes.
-                  jQuery("#working_alert").fadeOut();
-                }
-            });
+            var bodyPayload = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
+            contentTypeValue = false;
+            processDataValue = false;
+            headersList = [];
         } else if ( jQuery("[data-role='body-param-list']").length) {
-            self.makeAJAXCall({"url":urlToTest,"type":methodVerb,"data" : jQuery("#formAttachment").serialize(), "callback":self.renderRequest,"headers":headersList});
+            bodyPayload = jQuery("#formAttachment").serialize();
         } else { // If a method does not have attach, use standard makeAJAXCall() method to send request.
             if (jQuery('[data-role="request-payload-example"]').length) {
-                self.makeAJAXCall({"url":urlToTest,"type":methodVerb,"data" : window.apiModelEditor.getRequestPayLoad(), "callback":self.renderRequest,"headers":headersList});
-            } else {
-                self.makeAJAXCall({"url":urlToTest,"type":methodVerb,"callback":self.renderRequest,"headers":headersList});
+                bodyPayload = window.apiModelEditor.getRequestPayLoad();
             }
         }
+        self.makeAJAXCall({"url":urlToTest,"type":methodVerb,"data" : bodyPayload, "callback":self.renderRequest,"headers":headersList, "contentType":contentTypeValue,"processData":processDataValue});
     };
     /**
      * Success/Error callback method of a send request proxy API call.
