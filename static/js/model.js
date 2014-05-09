@@ -932,6 +932,41 @@ Apigee.APIModel.Editor = function() {
                 }
             });
         }
+        var errorMessage = "";
+        var paramGroups = jQuery("[data-role='param-groups']");
+        if (paramGroups.length) {
+            paramGroups.each(function(i, obj) {
+                var paramGroup = jQuery(this);
+                var maxChoice = (paramGroup.find("[data-role='maxChoice']").length) ? parseInt(paramGroup.find("[data-role='maxChoice']").text()) : paramGroup.find("[data-role='param-group-list']").length;
+                var minChoice = (paramGroup.find("[data-role='minChoice']").length) ? parseInt(paramGroup.find("[data-role='minChoice']").text()) : 0 ;
+                var counter = 0;
+                var paramGroupMissing = [];
+                if (paramGroup.find("[data-role='param-group-list']").length) {
+                    paramGroup.find("[data-role='param-group-list']").each(function(i, obj) {
+                        var paramGroupName = jQuery(this).find("[data-role='name']").text();
+                        var paramGroupValue = jQuery(this).find("[data-role='value']").val();
+                        var paramGroupType = jQuery(this).find("[data-role='type']").text().toLowerCase();
+                        if (jQuery.trim(paramGroupValue).length >= 1) {
+                            counter++;
+                            if (paramGroupType == "query") {
+                                var separator = (jQuery.trim(queryParamString).length) ? "&" : "";
+                                queryParamString += separator + paramGroupName + "=" + encodeURIComponent(decodeURIComponent(paramGroupValue));
+                            } else if (paramGroupType == "header") {
+                                headersList.push({"name" : paramGroupName, "value" : paramGroupValue});
+                            }
+                        } else {
+                            paramGroupMissing.push(jQuery.trim(paramGroupName));
+                        }
+                    });
+                }
+                if (minChoice > counter) {
+                    errorMessage += "Missing "+ (maxChoice-counter) +" value for parameter group of: <span>"+paramGroupMissing.join(", ")+"</span></br>";
+                }
+                if (counter > maxChoice) {
+                    errorMessage += "Number of entered parmeters exceeds the maximum number of choices in the parameter group</br>";
+                }
+            });
+        }
         if (customTokenObject.tokenType == "query") {
             var separator = (queryParamString != "") ? "&" : "";
             var index = 0;
@@ -953,7 +988,7 @@ Apigee.APIModel.Editor = function() {
                 }
             }
         }
-        var errorMessage = "";
+
         urlToTest = urlToTest.replace(/\{/g,"").replace(/\}/g,"");
         urlToTest = jQuery.trim(urlToTest);
         queryParamString = jQuery.trim(queryParamString);
@@ -1396,6 +1431,61 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
         });
         return paramString;
     }
+    function constructParamGroups(scope) {
+        var paramGroups = jQuery("[data-role='param-groups'][data-scope='"+scope+"']");
+        var paramString = "";
+        if (paramGroups.length) {
+            paramGroups.each(function(i, obj) {
+                var paramGroup = jQuery(this);
+                paramString += '{';
+                if (paramGroup.find("[data-role='maxChoice']").length) {
+                  paramString += ' "maxChoice" : '+ parseInt(paramGroup.find("[data-role='maxChoice']").text());
+                }
+                if (paramGroup.find("[data-role='minChoice']").length) {
+                    paramString += (paramGroup.find("[data-role='maxChoice']").length) ? "," : "";
+                    paramString += '"minChoice" : '+ parseInt(paramGroup.find("[data-role='minChoice']").text());
+                }
+                paramString += ', "parameters" : [ ';
+                //var choice = parseInt(paramGroup.find("[data-role='choice']").attr('data-choice'));
+                //jsonBody += ' "choice" : '+choice+', "parameters" : [ ';
+                if (paramGroup.find("[data-role='param-group-list']").length) {
+                    paramGroup.find("[data-role='param-group-list']").each(function(index, obj) {
+                        var currentLIElement = jQuery(this);
+                        var paramGroupName = jQuery.trim(currentLIElement.find("[data-role='name']").text());
+                        var paramGroupValue = jQuery.trim(currentLIElement.find("[data-role='value']").val());
+                        var paramGroupType = jQuery.trim(currentLIElement.find("[data-role='type']").text());
+                        paramGroupType = paramGroupType.toUpperCase();
+                        var descriptionValue;
+                        if (currentLIElement.find("div.description textarea").length) {
+                            descriptionValue = jQuery.trim(currentLIElement.find("div.description textarea").val());
+                        } else {
+                            descriptionValue = jQuery.trim(currentLIElement.find("div.description").text());
+                        }
+                        descriptionValue = JSON.stringify(descriptionValue);
+                        descriptionValue = descriptionValue.substring(1,descriptionValue.length-1); //Check if this required.
+                        descriptionValue = self.escapeSpecialChars(descriptionValue);
+                        paramString += '{"name" :"' + paramGroupName + '",';
+                        paramString += '"defaultValue" :"' + paramGroupValue + '",';
+                        paramString += '"type" :"'+ paramGroupType +'",';
+                        paramString += '"description" :"' + descriptionValue + '",';
+                        paramString += '"dataType" :"string"}';
+
+                        var noOfParam = paramGroup.find("[data-role='param-group-list']").length;
+                        if (noOfParam > (index+1) ) {
+                            paramString += ',';
+                        }
+                    });
+                    paramString += ']';
+                }
+                paramString += '}';
+                if (paramGroups.length > (i+1) ) {
+                    paramString += ',';
+                }
+
+            });
+        }
+        return paramString;
+    }
     function updateParms(currentLIElement, data) {
         var paramName = jQuery.trim(currentLIElement.find("[data-role='name']").text());
         var paramStyle = "";
@@ -1741,7 +1831,8 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             }
 
             // Resource level params Header, Query, Template params contruction.
-            jsonBody += '{"parameters": [' + constructParams("general","resource") + ' ]}';
+            jsonBody += '{"parameters": [' + constructParams("general","resource") + ' ]';
+            jsonBody += ', "parameterGroups": [ ' + constructParamGroups("resource") + ' ]}';
         } else {
             lastEditScope = "method";
             operationPath = operationPath.split("/doc?")[0]
@@ -1809,6 +1900,8 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
                 jsonBody += ', "parameters": [' + paramString + ' ]';
             }
 
+            jsonBody += ', "parameterGroups": [ ' + constructParamGroups("method") + ' ]';
+
             jsonBody += ', "body": {';
             jsonBody += '"parameters": [';
             jsonBody += constructParams('body');
@@ -1817,6 +1910,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             jsonBody += ', "attachments": [';
             jsonBody += constructParams('attachments');
             jsonBody += ' ]';
+
 
             jsonBody += ', "contentType":"' + contentTypeValue + '"';
             // Request payload sample contruction.
@@ -1886,7 +1980,6 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             }
             jsonBody += '}';
         }
-
         var headersList = [];
         if(localStorage.orgAdminBasicAuthDetails) {
             if (basicAuth != localStorage.orgAdminBasicAuthDetails.split("@@@")[0]) {

@@ -265,6 +265,28 @@
 #method_content .method_table .title {
     width: 150px;
 }
+#method_content .method_table[data-role='param-groups'] .title {
+    width: 90px;
+}
+#method_content .method_table[data-role='param-groups'] > div {
+    padding: 5px;
+    margin: 10px 0 5px 0;
+    background-color: #CACACA;
+    font-weight: bold;
+    border-radius: 5px;
+}
+#method_content .method_table[data-role='param-groups'] > div p:first-child {
+    float: left;
+    padding-left:0;
+}
+#method_content .method_table[data-role='param-groups'] > div p {
+    padding-left:30px;
+    display: inline-block;
+}
+#method_content .method_table .type {
+    width: 60px;
+    float: left;
+}
 #method_content .method_table > li, #index_content .method_table .method_title, #index_content .method_table .method_details {
     border-bottom: 1px solid #cacaca;
 }
