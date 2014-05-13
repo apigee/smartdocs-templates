@@ -100,9 +100,9 @@
                             {{/if}}
                         </div>
                         <div class="method_data description">
-                            <p data-role="description" data-allow-edit="true">
+                            <div data-role="description" data-allow-edit="true">
                                 {{{this.description}}}
-                            </p>
+                            </div>
                         </div>
                     </li>
                     {{/query-list}}
@@ -142,14 +142,70 @@
                             {{/if}}
                         </div>
                         <div class="method_data description">
-                            <p data-role="description" data-allow-edit="true">
+                            <div data-role="description" data-allow-edit="true">
                                 {{{this.description}}}
-                            </p>
+                            </div>
                         </div>
                     </li>
                     {{/header-list}}
                 </ul>
             {{/if-header-param}}
+            {{#if parameterGroups}}
+                <h3>Param Groups</h3>
+                {{#each parameterGroups}}
+                <!-- Header parameters section -->
+                <ul class="method_table" data-role="param-groups" data-scope="{{scope}}">
+                    <div class="clearfix">
+                        {{#if minChoice}}
+                        <p> Minimum Choice : <span data-role="minChoice">{{minChoice}}</span> </p>
+                        {{/if}}
+                        {{#if maxChoice}}
+                        <p> Maximum Choice : <span data-role="maxChoice">{{maxChoice}}</span> </p>
+                        {{/if}}
+                    </div>
+                    <li class="method_title">
+                        <div class="method_data title">Name</div>
+                        <div class="method_data type">Type</div>
+                        <div class="method_data value">Value</div>
+                        <div class="method_data description">Description</div>
+                    </li>
+                    {{#each parameters}}
+                    <li class="method_details" data-role="param-group-list" data-scope="{{scope}}">
+                        <div class="method_data title">
+                            <span data-role="name">{{name}}</span>
+                            {{#required}}
+                            <br/>
+                            <span class="required" data-role="required">(required)</span>
+                            {{/required}}
+                        </div>
+                        <div class="method_data type">
+                            <span data-role="type">{{type}}</span>
+                        </div>
+                        <div class="method_data value">
+                            {{#if options}}
+                            <select name="{{name}}" data-role="multiple-value">
+                            {{#options}}
+                                <option value="{{.}}">{{.}}</option>
+                            {{/options}}
+                            </select>
+                            {{else}}
+                            {{#if required}}
+                            <input type="text" name="{{name}}" data-role="value"  class="form-control" value="{{defaultValue}}"/>
+                            {{else}}
+                            <input type="text" name="{{name}}" data-role="value"  class="form-control" placeholder="{{defaultValue}}" value=""/>
+                            {{/if}}
+                            {{/if}}
+                        </div>
+                        <div class="method_data description">
+                            <div data-role="description" data-allow-edit="true">
+                                {{{this.description}}}
+                            </div>
+                        </div>
+                    </li>
+                    {{/each}}
+                </ul>
+                {{/each}}
+            {{/if}}
                 <!-- Body parameters and attachement section -->
                 <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">
                 {{#body}}
@@ -186,9 +242,9 @@
                                 {{/if}}
                             </div>
                             <div class="method_data description">
-                                <p data-role="description" data-allow-edit="true">
+                                <div data-role="description" data-allow-edit="true">
                                     {{{this.description}}}
-                                </p>
+                                </div>
                             </div>
                         </li>
                         {{/each}}
@@ -220,9 +276,9 @@
                                 {{/if}}
                             </div>
                             <div class="method_data description">
-                                <p data-role="description" data-allow-edit="true">
+                                <div data-role="description" data-allow-edit="true">
                                     {{{this.description}}}
-                                </p>
+                                </div>
                             </div>
                         </li>
                         {{/each}}
@@ -341,9 +397,9 @@
                         <span data-role="code">{{code}}</span>
                     </div>
                     <div class="method_data description">
-                        <p data-role="description" data-allow-edit="true">
+                        <div data-role="description" data-allow-edit="true">
                             {{{description}}}
-                        </p>
+                        </div>
                     </div>
                 </li>
                 {{/each}}
