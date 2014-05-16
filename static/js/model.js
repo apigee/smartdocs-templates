@@ -515,7 +515,10 @@ Apigee.APIModel.Editor = function() {
     this.storeProxyURL = function(data) {
         Apigee.APIModel.proxyURL = data.proxyUrl;
         Apigee.APIModel.authUrl = data.authUrl;
-        if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
+        if (Apigee.APIModel.proxyURL.indexOf("/sendrequest") == -1 ) {
+            Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
+        }
+        if (Query.browser.msie && parseInt(jQuery.browser.version) <= 9) {
             Apigee.APIModel.proxyURL += "/ie9";
         }
     }
