@@ -518,7 +518,7 @@ Apigee.APIModel.Editor = function() {
         if (Apigee.APIModel.proxyURL.indexOf("/sendrequest") == -1 ) {
             Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
         }
-        if (Query.browser.msie && parseInt(jQuery.browser.version) <= 9) {
+        if (jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
             Apigee.APIModel.proxyURL += "/ie9";
         }
     }
