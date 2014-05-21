@@ -1063,12 +1063,35 @@ Apigee.APIModel.Editor = function() {
                 var requestPayLoad = "<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>";
                 jQuery("#formAttachment").append(requestPayLoad);
             }
-            var bodyPayload = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
+
+            if (jQuery("[data-role='body-param-list']").length) {
+                var formParams = jQuery("#formParams").serialize();
+                if (!jQuery("#formAttachment input[name='root-fields']").length) {
+                    jQuery("#formAttachment").prepend('<input type="hidden" name="root-fields" value="'+formParams+'"/>');
+                } else {
+                    jQuery("#formAttachment input[name='root-fields']").val(formParams);
+                }
+                urlToTest += "&formparamsandattachment=true"
+            } else {
+                for (var i=0,l=headersList.length; i<l; i++) {
+                    if (headersList[i].name == "Content-Type") {
+                        headersList.splice(i,1)
+                    }
+                }
+            }
+            if (jQuery("#formParams").length) {
+                bodyPayload = new FormData(jQuery("form")[1]); // Create an arbitrary FormData instance
+            } else {
+                bodyPayload = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
+            }
             contentTypeValue = false;
             processDataValue = false;
-            headersList = [];
-        } else if ( jQuery("[data-role='body-param-list']").length) {
-            bodyPayload = jQuery("#formAttachment").serialize();
+        } else if (jQuery("[data-role='body-param-list']").length) {
+            if (jQuery("#formParams").length) {
+                bodyPayload = jQuery("#formParams").serialize();
+            } else {
+                bodyPayload = jQuery("#formAttachment").serialize();
+            }
         } else { // If a method does not have attach, use standard makeAJAXCall() method to send request.
             if (jQuery('[data-role="request-payload-example"]').length) {
                 bodyPayload = window.apiModelEditor.getRequestPayLoad();
