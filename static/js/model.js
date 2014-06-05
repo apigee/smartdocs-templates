@@ -1769,7 +1769,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             if (jQuery(this).hasClass("resource_description") || jQuery(this).attr('data-role') == "request-payload-docs" || jQuery(this).attr('data-role') == "response-payload-docs") {
                 currentEdiatableElementValue = jQuery.trim(jQuery(this).html());
                 jQuery(this).hide();
-                jQuery(this).siblings("textarea").html(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
+                jQuery(this).siblings("textarea").val(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
                 jQuery(this).siblings("textarea").focus();
                 jQuery(this).siblings("textarea").unbind("click").click(function() {
                     return false;
@@ -1870,6 +1870,9 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             }
             // Description text construction.
             var descriptionText =  jQuery.trim(jQuery("textarea.resource_description_edit").val());
+            if (currentEdiatableElement.attr("data-role") != "method-description") {
+                descriptionText =  jQuery.trim(jQuery(".resource_description ").html());
+            }
             // Authentication value construction.
             var authenticationValue = jQuery("[data-role='auth-type']").text()
             authenticationValue = authenticationValue.replace("Basic Auth","BASICAUTH").replace("Custom Token","CUSTOM").replace( "OAuth 1","OAUTH1WEBSERVER").replace("OAuth 1 Client Credentials","OAUTH1CLIENTCREDENTIALS").replace("OAuth 2","OAUTH2WEBSERVER").replace("OAuth 2 Client Credentials","OAUTH2CLIENTCREDENTIALS").replace("OAuth 2 Implicit Grant Flow","OAUTH2IMPLICITGRANT").replace("No auth","NOAUTH");
