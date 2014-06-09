@@ -615,6 +615,7 @@ Apigee.APIModel.Editor = function() {
     this.updateAuthContainer = function() {
         if (authType.indexOf("No auth") != -1) {
             jQuery("[data-role='authentication_container']").css({'visibility':'hidden'});
+            jQuery(".icon_lock").css({'visibility':'hidden'});
         } else {
             if (authType.indexOf("Basic Auth") != -1) { // Show Basic auth info in the operation container.
                 if (authType.indexOf(",") == -1) {
