@@ -207,9 +207,9 @@
                 {{/each}}
             {{/if}}
                 <!-- Body parameters and attachement section -->
-                <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">
                 {{#body}}
                     {{#if parameters}}
+                <form enctype="multipart/form-data" method="post" name="formParams" id="formParams">                            
                     <ul class="method_table">
                         <h3>Body Parameters</h3>
                         <li class="method_title">
@@ -249,7 +249,9 @@
                         </li>
                         {{/each}}
                     </ul>
+                </form>    
                     {{/if}}
+                <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">    
                     <ul class="method_table">
                         {{#if attachments}}
                         <h3>Attachments</h3>
@@ -283,8 +285,8 @@
                         </li>
                         {{/each}}
                     </ul>
+                </form>                            
                 {{/body}}
-                </form>
             </div>
             {{#body}}
             {{#if sample}}
@@ -414,7 +416,7 @@
     <p>Working...</p>
 </div>
 <!-- Basic authentication modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal_container" data-role="basic_auth_modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-role="basic_auth_modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -446,7 +448,7 @@
 </div>
 <!-- /.modal -->
 <!-- OAuth 2 authentication modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal_container" data-role="oauth2_modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-role="oauth2_modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -472,7 +474,7 @@
 </div>
 <!-- /.modal -->
 <!-- Custom token authentication modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal_container" data-role="custom_token_modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-role="custom_token_modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -516,7 +518,7 @@
 </div>
 <!-- /.modal -->
 <!-- Org admin authentication modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal_container" data-role="edit_auth_modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-role="edit_auth_modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -548,7 +550,7 @@
 </div>
 <!-- /.modal -->
 <!-- Confirm the changes modal -->
-<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="modal_container" data-role="confirm_modal">
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" data-role="confirm_modal">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
