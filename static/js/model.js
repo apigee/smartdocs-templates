@@ -75,7 +75,12 @@ Apigee.APIModel.Common = function() {
      * @return {Void} make an AJAX call and handles succces and failure callback.
      */
     this.makeAJAXCall = function(request) {
-        if (jQuery.browser.msie && window.XDomainRequest && parseInt(jQuery.browser.version) <= 9) {
+        var requestUrl = request.url.toString();
+        var currentHost = document.location.host.toString();
+        if (requestUrl.indexOf("targeturl=") != -1) {
+            requestUrl = requestUrl.split("targeturl=")[0].toString();
+        }    
+        if (jQuery.browser.msie && window.XDomainRequest && parseInt(jQuery.browser.version) <= 9 && requestUrl.indexOf(currentHost) == -1) {
             var requestURL = request.url;
             var defaultMethodType = (request.type) ? request.type : "get";
             if (requestURL.indexOf("targeturl") != -1) {
@@ -202,9 +207,9 @@ Apigee.APIModel.Common = function() {
      * This method closes the authentication modal dialog.
      */
     this.closeAuthModal = function() {
-        jQuery('#modal_container.modal').modal('hide')
-        jQuery("#modal_container.modal input").removeClass("error"); // Remove error class from the input boxes.
-        jQuery("#modal_container.modal .error_container").hide().html(""); // Empty the error container and hide it.
+        jQuery('[role="dialog"].modal').modal('hide')
+        jQuery('[role="dialog"].modal input').removeClass('error'); // Remove error class from the input boxes.
+        jQuery('[role="dialog"].modal .error_container').hide().html(''); // Empty the error container and hide it.
         //return false;
     };
     /**
@@ -515,12 +520,7 @@ Apigee.APIModel.Editor = function() {
     this.storeProxyURL = function(data) {
         Apigee.APIModel.proxyURL = data.proxyUrl;
         Apigee.APIModel.authUrl = data.authUrl;
-        if (Apigee.APIModel.proxyURL.indexOf("/sendrequest") == -1 ) {
-            Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
-        }
-        if (jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
-            Apigee.APIModel.proxyURL += "/ie9";
-        }
+        Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
     }
     /**
      * Success callback method of a OAuth2 web serser auth URL AJAX call.
@@ -616,6 +616,7 @@ Apigee.APIModel.Editor = function() {
         if (authType.indexOf("No auth") != -1) {
             jQuery("[data-role='authentication_container']").css({'visibility':'hidden'});
             jQuery(".icon_lock").css({'visibility':'hidden'});
+            
         } else {
             if (authType.indexOf("Basic Auth") != -1) { // Show Basic auth info in the operation container.
                 if (authType.indexOf(",") == -1) {
@@ -646,8 +647,10 @@ Apigee.APIModel.Editor = function() {
                         if (emailString.length > 12) {
                             emailString = emailString.substring(0,12) +"..."; // Trim the email string.
                         }
-                        basicAuth = basicAuthCredentials.split("@@@")[2]; // Store to local variable, for further reference.
-                        var selected = (apiName == sessionStorage.selectedAuthScheme.split("@@@")[0] && revisionNumber == sessionStorage.selectedAuthScheme.split("@@@")[1] && sessionStorage.selectedAuthScheme.split("@@@")[2]== "basicauth") ? "selected" : "";
+                            basicAuth = basicAuthCredentials.split("@@@")[2]; // Store to local variable, for further reference.
+                            if (sessionStorage.selectedAuthScheme) {
+                                var selected = (apiName == sessionStorage.selectedAuthScheme.split("@@@")[0] && revisionNumber == sessionStorage.selectedAuthScheme.split("@@@")[1] && sessionStorage.selectedAuthScheme.split("@@@")[2]== "basicauth") ? "selected" : "";
+                            }
                         //jQuery(".authentication").html(constructAuthenticationHTML('basicauth',selected,emailString)); // Display current user's basic auth info.
                         if (selected != "") {
                             jQuery("[data-role='basic_auth_container']").addClass(selected);
@@ -759,7 +762,7 @@ Apigee.APIModel.Editor = function() {
                 selectedAuthScheme = "basicauth";
                 self.updateAuthContainer();
             } else { // Display error message.
-                jQuery("#modal_container.modal .error_container").html(errMessage+"Please try again.").show();
+                jQuery("[role='dialog'].modal .error_container").html(errMessage+"Please try again.").show();
             }
         } else if (parentClass.attr('data-role') == 'oauth2_modal') {
             var oauth2Url = window.location.href;
@@ -992,7 +995,9 @@ Apigee.APIModel.Editor = function() {
                 }
             }
         }
-
+        if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9 && jQuery("[data-role='body-param-list']").length) {
+            headersList.push({"name" : "Content-Type", "value" : "application/x-www-form-urlencoded"});
+        }
         urlToTest = urlToTest.replace(/\{/g,"").replace(/\}/g,"");
         urlToTest = jQuery.trim(urlToTest);
         queryParamString = jQuery.trim(queryParamString);
@@ -1052,7 +1057,8 @@ Apigee.APIModel.Editor = function() {
         var bodyPayload = null;
         var contentTypeValue = "application/x-www-form-urlencoded;charset=utf-8";
         var processDataValue = true;
-        if (jQuery("[data-role='attachments-list']").length) {
+        if (jQuery("[data-role='attachments-list']").length || (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='body-param-list']").length)) {
+            var multiPartTypes = "";
             if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
                 if (localStorage.getItem("unsupportedAttachmentFlag") == null) {
                     self.showUnsupportedAttachementAlertMessage();
@@ -1060,11 +1066,6 @@ Apigee.APIModel.Editor = function() {
                 jQuery("#working_alert").fadeOut();
                 return;
             }
-            if (jQuery('[data-role="request-payload-example"]').length) {
-                var requestPayLoad = "<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>";
-                jQuery("#formAttachment").append(requestPayLoad);
-            }
-
             if (jQuery("[data-role='body-param-list']").length) {
                 var formParams = jQuery("#formParams").serialize();
                 if (!jQuery("#formAttachment input[name='root-fields']").length) {
@@ -1072,12 +1073,32 @@ Apigee.APIModel.Editor = function() {
                 } else {
                     jQuery("#formAttachment input[name='root-fields']").val(formParams);
                 }
-                urlToTest += "&formparamsandattachment=true"
+                multiPartTypes = "param"; 
+                if (jQuery('[data-role="request-payload-example"]').length || jQuery("[data-role='attachments-list']").length) {
+                    multiPartTypes += (jQuery('[data-role="request-payload-example"]').length) ? "text" : "";
+                    multiPartTypes += (jQuery("[data-role='attachments-list']").length) ? "attachment" : "";
+                    urlToTest += "&multiPartsTypes="+multiPartTypes;
+                }
             } else {
                 for (var i=0,l=headersList.length; i<l; i++) {
                     if (headersList[i].name == "Content-Type") {
                         headersList.splice(i,1)
                     }
+                }
+                if (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='attachments-list']").length) {
+                    urlToTest += "&multiPartsTypes=textattachments";
+                }
+            }
+
+            if (jQuery('[data-role="request-payload-example"]').length) {
+                if (!jQuery("#formAttachment textarea[name='text']").length) {
+                    if (jQuery("#formAttachment input[name='root-fields']").length) {
+                        jQuery("<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>").insertAfter("#formAttachment input[name='root-fields']");
+                    } else {
+                        jQuery("#formAttachment").prepend("<textarea class='hide' name='text'>"+window.apiModelEditor.getRequestPayLoad()+"</textarea>");
+                    }    
+                } else {
+                    jQuery("#formAttachment textarea[name='text']").val(window.apiModelEditor.getRequestPayLoad());
                 }
             }
             if (jQuery("#formParams").length) {
@@ -1087,6 +1108,7 @@ Apigee.APIModel.Editor = function() {
             }
             contentTypeValue = false;
             processDataValue = false;
+            
         } else if (jQuery("[data-role='body-param-list']").length) {
             if (jQuery("#formParams").length) {
                 bodyPayload = jQuery("#formParams").serialize();
@@ -1200,7 +1222,7 @@ Apigee.APIModel.Editor = function() {
                 requestContainerString +=  "<dt>";
                 requestContainerString += unescape(headerName);
                 requestContainerString += ": </dt><dd>";
-                requestContainerString += unescape(headerValue);
+                requestContainerString += unescape(headerValue).replace(/</g,"&lt").replace(/>/g,"&gt");
                 requestContainerString +=  "</dd>";
             }
         }
@@ -1770,7 +1792,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             if (jQuery(this).hasClass("resource_description") || jQuery(this).attr('data-role') == "request-payload-docs" || jQuery(this).attr('data-role') == "response-payload-docs") {
                 currentEdiatableElementValue = jQuery.trim(jQuery(this).html());
                 jQuery(this).hide();
-                jQuery(this).siblings("textarea").val(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
+jQuery(this).siblings("textarea").val(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
                 jQuery(this).siblings("textarea").focus();
                 jQuery(this).siblings("textarea").unbind("click").click(function() {
                     return false;
@@ -1824,7 +1846,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
         if(currentEdiatableElement) {
             currentEdiatableElement.removeClass("editing");
         }
-        if (currentEdiatableElementValue != "" && jQuery("body").children("#modal_container.modal").is(":visible") == false) {
+        if (currentEdiatableElementValue != "" && jQuery("body").children("[role='dialog'].modal").is(":visible") == false) {
             jQuery("[data-role='confirm_modal']").modal('show');
             Apigee.APIModel.initInlineEditAdminAuthEvents();
         }
@@ -1874,6 +1896,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
             if (currentEdiatableElement.attr("data-role") != "method-description") {
                 descriptionText =  jQuery.trim(jQuery(".resource_description ").html());
             }
+            
             // Authentication value construction.
             var authenticationValue = jQuery("[data-role='auth-type']").text()
             authenticationValue = authenticationValue.replace("Basic Auth","BASICAUTH").replace("Custom Token","CUSTOM").replace( "OAuth 1","OAUTH1WEBSERVER").replace("OAuth 1 Client Credentials","OAUTH1CLIENTCREDENTIALS").replace("OAuth 2","OAUTH2WEBSERVER").replace("OAuth 2 Client Credentials","OAUTH2CLIENTCREDENTIALS").replace("OAuth 2 Implicit Grant Flow","OAUTH2IMPLICITGRANT").replace("No auth","NOAUTH");
