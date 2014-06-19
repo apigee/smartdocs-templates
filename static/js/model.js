@@ -413,8 +413,7 @@ Apigee.APIModel.Editor = function() {
     var apiName = Apigee.APIModel.apiName; // Stores the apiName rendered from template.
     var revisionNumber = Apigee.APIModel.revisionNumber; // Stores the revision number rendered from template.
     var targetUrl = "";
-    //Private methods.
-
+    var DEFAULT_OPTIONAL_PARAM_OPTION = "-None-"
 
     // Public methods.
     /**
@@ -482,7 +481,10 @@ Apigee.APIModel.Editor = function() {
         }
         // Create a new custom property called 'data-original-value' in query params and header params value field.
         // Assign the default value to the custom property 'data-original-value'. This value will be used in clicking 'reset' link.
-        jQuery("[data-role='query-param-list'],[data-role='header-param-list']").each(function(i, obj) {
+        jQuery("[data-role='query-param-list'],[data-role='header-param-list'], [data-role='body-param-list'], [data-role='attachments-list']").each(function(i, obj) {
+            if (!jQuery(this).find("span.required").length && jQuery(this).find(".value select").length) {
+                jQuery(this).find(".value select").prepend("<option value='"+DEFAULT_OPTIONAL_PARAM_OPTION+"' selected>"+DEFAULT_OPTIONAL_PARAM_OPTION+"</option>");
+            }
             var valueElement = jQuery(this).find("[data-role='value']");
             valueElement.attr('data-original-value',jQuery.trim(valueElement.val()));
         });
@@ -904,6 +906,7 @@ Apigee.APIModel.Editor = function() {
                 var headerParamValue;
                 if (jQuery(this).find("[data-role='multiple-value']").length) {
                     headerParamValue = jQuery(this).find("select option:selected").val();
+                    headerParamValue = (headerParamValue == DEFAULT_OPTIONAL_PARAM_OPTION) ? "" : headerParamValue;
                 } else {
                     headerParamValue = jQuery(this).find("[data-role='value']").val();
                 }
@@ -924,14 +927,17 @@ Apigee.APIModel.Editor = function() {
                 var queryParamValue;
                 if (jQuery(this).find("[data-role='multiple-value']").length) {
                     queryParamValue = jQuery(this).find("select option:selected").val();
+                    queryParamValue = (queryParamValue == DEFAULT_OPTIONAL_PARAM_OPTION) ? "" : queryParamValue;
                 } else {
                     queryParamValue = jQuery(this).find("[data-role='value']").val();
                 }
+                
                 if (jQuery.trim(queryParamValue).length >= 1) {
                     var separator = (isFistParam) ? "" : "&";
                     queryParamString += separator + queryParamName + "=" + encodeURIComponent(decodeURIComponent(queryParamValue));
                     isFistParam = false;
                 }
+                
                 if (jQuery(this).find("span.required").length && queryParamValue == "") {
                     isQueryParamMissing = true;
                     queryParamMissing.push(queryParamName);
@@ -1075,9 +1081,9 @@ Apigee.APIModel.Editor = function() {
                 }
                 multiPartTypes = "param"; 
                 if (jQuery('[data-role="request-payload-example"]').length || jQuery("[data-role='attachments-list']").length) {
-                    multiPartTypes += (jQuery('[data-role="request-payload-example"]').length) ? "text" : "";
-                    multiPartTypes += (jQuery("[data-role='attachments-list']").length) ? "attachment" : "";
-                    urlToTest += "&multiPartsTypes="+multiPartTypes;
+                    multiPartTypes += (jQuery('[data-role="request-payload-example"]').length) ? "+text" : "";
+                    multiPartTypes += (jQuery("[data-role='attachments-list']").length) ? "+attachment" : "";
+                    urlToTest += "&multiparttypes="+multiPartTypes;
                 }
             } else {
                 for (var i=0,l=headersList.length; i<l; i++) {
@@ -1086,7 +1092,7 @@ Apigee.APIModel.Editor = function() {
                     }
                 }
                 if (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='attachments-list']").length) {
-                    urlToTest += "&multiPartsTypes=textattachments";
+                    urlToTest += "&multiparttypes=text+attachment";
                 }
             }
 
