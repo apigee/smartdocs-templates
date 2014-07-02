@@ -120,7 +120,7 @@
 
 /* Resource Summary Section */
 #method_content .resource_summary {
-    width: 236px;
+    width: 34.8%;
     background-color: #f9f9f9;
     border-radius: 4px;
     float: right;
@@ -144,7 +144,7 @@
 }
 #method_content .resource_summary div p.data {
     float: right;
-    width: 117px;
+    width: 49.5%;
     text-align: right;
     word-wrap: break-word;
 }
@@ -200,7 +200,7 @@
     line-height: 30px;
     margin: 0 0 0 10px;
     float: left;
-    width: 339px;
+    width: 49%;
     word-wrap: break-word;
 }
 
@@ -263,7 +263,8 @@
     border-radius: 0 4px 4px 0;
 }
 #method_content .method_table .title {
-    width: 150px;
+    width: 21.5%;
+
 }
 #method_content .method_table[data-role='param-groups'] .title {
     width: 90px;
@@ -308,12 +309,12 @@
     color:#aaa;
 }
 #method_content .method_table .value, #index_content .method_table .value {
-    width: 168px;
+    width: 27%;
     float: left;
 }
 #method_content .method_table .method_details .value input, #index_content .method_table .method_details .value input {
     height: 25px;
-    width: 144px;
+    width: 85%;
     font-size: 13px;
     margin-bottom: 0;
     padding: 0 12px;
@@ -326,10 +327,10 @@
     float: right;
 }
 #method_content .method_table .method_details .description, #method_content .method_table .method_title .description {
-    width: 336px;
+    width: 49%;
 }
 #method_content .method_table select {
-    width: 144px;
+    width: 87%;
 }
 
 /* Request Payload */
@@ -339,7 +340,7 @@
 #method_content .request_payload_doc_edit, #method_content .response_payload_doc_edit {
     display: none;
     float:left;
-    width: 600px;
+    width: 90%;
 }
 #method_content [data-role='request-payload-example'] {
     border: 1px solid #cacaca;
@@ -355,11 +356,17 @@
 }
 /* Operation Container */
 #method_content .operation_container {
-    margin: 40px 0;
+    margin: 20px 0;
 }
+#method_content .operation_container:after, #method_content .operation_container:before {
+    content: " ";
+    display: table;
+    clear: both;
+} 
 #method_content .operation_container .authentication {
     float: left;
     min-width: 170px;
+    margin-bottom: 10px;
 }
 #method_content .operation_container .authentication .well {
     width: 120px;
@@ -610,7 +617,7 @@
 #method_content.edit_mode [data-role="method-title"][data-allow-edit="true"] {
     border: 1px solid #FFFFFF;
     padding: 0 5px;
-    width: 244px;
+    width: 58%;
     margin-bottom: 5px;
     float: left;
 }
@@ -629,14 +636,14 @@
 #method_content.edit_mode .method_table .method_details [data-allow-edit="true"] {
     float: left;
     padding: 0 5px;
-    width: 285px;
+    width: 84%;
     min-height:18px;
 }
 #method_content.edit_mode [data-role="request-payload-docs"], #method_content.edit_mode [data-role="request-payload-example"], #method_content.edit_mode [data-role="request-payload-docs"] {
     border: 1px solid #ffffff;
 }
 #method_content.edit_mode [data-role='request-payload-docs'], #method_content.edit_mode [data-role='request-payload-example'] {
-    width: 600px;
+    width: 90%;
     float: left;
 }
 #method_content.edit_mode [data-role='request-payload-example'] {
@@ -649,7 +656,7 @@
 }
 #method_content.edit_mode .resource_details {
     float: left;
-    width: 420px;
+    width: 62%;
 }
 #method_content.edit_mode li {
     padding: 10px 0;
@@ -667,7 +674,7 @@
     width: 53px;
 }
 #method_content.edit_mode .description_container .resource_description, #method_content.edit_mode .description_container textarea {
-    width: 372px;
+    width: 88.5%;
     float: left;
     padding: 5px 5px;
 }

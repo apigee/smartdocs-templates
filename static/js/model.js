@@ -1733,7 +1733,7 @@ Apigee.APIModel.Methods.prototype = new Apigee.APIModel.Common();
         // Request payload sample related changes.
         var requestPayLoadExampleContainer = jQuery("[data-role='request-payload-example']");
         requestPayLoadExampleContainer.wrap("<div class='clearfix'></div>")
-        requestPayLoadExampleContainer.attr("data-allow-edit","true").width(600).css({'float':'left'});
+        requestPayLoadExampleContainer.attr("data-allow-edit","true").width('90%').css({'float':'left'});
         requestPayLoadExampleContainer.parent().append(editIconHTML);
         // Response payload description related changes.
         var responsePayLoadDocsContainer = jQuery("[data-role='response-payload-docs']");
