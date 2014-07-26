@@ -433,6 +433,11 @@
                     {{/if}}
                     {{/response}}
                 </div><!--/.col-sm-12 -->
+                {{#if apiSchema.inlineSchema}}
+                <div class="hide" data-role="api_scheme">
+                    {{apiSchema.inlineSchema}}
+                </div>          
+                {{/if}}
             </div><!-- #method_content -->
             <div class="col-sm-3"></div>
         </div>
