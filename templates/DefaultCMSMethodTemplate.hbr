@@ -218,7 +218,7 @@
                             <div class="method_data description">Description</div>
                         </li>
                         {{#each parameters}}
-                        <li class="method_details" data-role="body-param-list" data-scope="method">
+                        <li class="method_details" data-role="body-param-list" data-scope="method" data-dataType="{{dataType}}">
                             <div class="method_data title">
                                 <span data-role="name">{{name}}</span>
                                 {{#required}}
@@ -288,13 +288,42 @@
                 </form>                            
                 {{/body}}
             </div>
+            {{#if apiSchema.inlineSchema}}
+            <div class="hide" data-role="api_scheme">
+                {{apiSchema.inlineSchema}}
+            </div>          
+            {{#body}}
+            <!-- Request payload section -->
+            <div class="request_payload">
+                <h3>Request Body</h3>
+                {{#if doc}}
+                <ul class="nav nav-pills" data-role="request-payload-link">
+                    <li class="active">
+                        <a href="javascript:void(0)" data-role="example-link">Value</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" data-role="docs-link">Description</a>
+                    </li>
+                </ul>
+                {{/if}}
+                <div data-role="request-payload-docs" class="docs">
+                    {{{doc}}}
+                </div>
+                <div data-role="request-payload-example">
+                    <textarea data-format="apiSchema.type">
+                    </textarea>
+                </div>
+            </div>
+            {{/body}}
+            
+            {{else}}
             {{#body}}
             {{#if sample}}
             <!-- Request payload section -->
             <div class="request_payload">
                 <h3>Request Body</h3>
                 {{#if doc}}
-                <ul class="nav nav-pills" data-role="request-payload-link">
+                <ul class="nav nav-pills" data-role="request-payload-link" >
                     <li class="active">
                         <a href="javascript:void(0)" data-role="example-link">Value</a>
                     </li>
@@ -314,6 +343,7 @@
             </div>
             {{/if}}
             {{/body}}
+            {{/if}}
             {{#if-template-param this.parameters}}
             <div class="hide" data-role="template-params">
                 {{#template-list this.parameters}}
@@ -409,11 +439,6 @@
             {{/if}}
             {{/response}}
         </div><!--/.col-sm-12 -->
-        {{#if apiSchema.inlineSchema}}
-        <div class="hide" data-role="api_scheme">
-            {{apiSchema.inlineSchema}}
-        </div>          
-        {{/if}}
     </div><!-- #method_content -->
     <div class="col-sm-3"></div>
 </div>
