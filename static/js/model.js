@@ -414,6 +414,7 @@ Apigee.APIModel.Editor = function() {
     var revisionNumber = Apigee.APIModel.revisionNumber; // Stores the revision number rendered from template.
     var targetUrl = "";
     var DEFAULT_OPTIONAL_PARAM_OPTION = "-None-"
+    var supportedDataType = ["integer", "long" , "float", "double", "string", "byte", "boolean", "date", "dateTime "];
 
     // Public methods.
     /**
@@ -481,6 +482,7 @@ Apigee.APIModel.Editor = function() {
         }
         // Create a new custom property called 'data-original-value' in query params and header params value field.
         // Assign the default value to the custom property 'data-original-value'. This value will be used in clicking 'reset' link.
+
         jQuery("[data-role='query-param-list'],[data-role='header-param-list'], [data-role='body-param-list'], [data-role='attachments-list']").each(function(i, obj) {
             if (!jQuery(this).find("span.required").length && jQuery(this).find(".value select").length) {
                 jQuery(this).find(".value select").prepend("<option value='"+DEFAULT_OPTIONAL_PARAM_OPTION+"' selected>"+DEFAULT_OPTIONAL_PARAM_OPTION+"</option>");
@@ -501,7 +503,44 @@ Apigee.APIModel.Editor = function() {
         }
         jQuery("#working_alert").css('left',(jQuery(window).width()/2)- 56); // Set working alert container left position to show in window's center position.
         jQuery("#method_content").show();
-        window.apiModelEditor.initRequestPayloadEditor(); // Initialize the request payload sample editor.
+        
+        //Swagger API Schema implementation
+        var apiSchema;
+        if(jQuery("[data-role='api_scheme']").length) {
+            apiSchema = jQuery.parseJSON(jQuery("[data-role='api_scheme']").text()); // Parse and hold internal API schema.
+        }  
+        if(apiSchema) {
+            var customDataTypeAvailable = false;
+            var $bodyParamListNode = jQuery("[data-role='body-param-list']")
+            $bodyParamListNode.each(function(){
+                modelName = $(this).attr('data-dataType');
+                if (modelName) {
+                    var curentParamCustomTypeFlag = true;
+                    jQuery.each(supportedDataType, function( index, value ) {
+                        if (modelName == value) {
+                            curentParamCustomTypeFlag = false; 
+                            return;
+                        }
+                    });                
+                    if (curentParamCustomTypeFlag) {
+                        customDataTypeAvailable = true;
+                        var swaggerModel = new Apigee.APIModel.SwaggerModel( modelName, apiSchema[modelName]);
+                        var sampleFromAPISchema = swaggerModel.createJSONSample( false );
+                        jQuery('[data-role="request-payload-example"]').find("textarea").val(JSON.stringify(sampleFromAPISchema, null, "\t"));            
+                        jQuery(this).remove();
+                    }
+                }
+            });
+            if (!customDataTypeAvailable) {
+                jQuery('[data-role="request-payload-example"]').parent().hide();
+            }
+            $bodyParamListNode = jQuery("[data-role='body-param-list']");
+            if ($bodyParamListNode.length == 0) {
+                jQuery("#formParams").hide();    
+            }    
+        }
+
+        window.apiModelEditor.initRequestPayloadEditor(); // Initialize the request payload sample editor.        
         var proxyURLLocation = windowLocation.split("/apimodels/")[0];
         if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
             proxyURLLocation = Drupal.settings.devconnect_docgen.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
@@ -509,6 +548,7 @@ Apigee.APIModel.Editor = function() {
         if (Apigee.APIModel.apiModelBaseUrl) {
             proxyURLLocation = Apigee.APIModel.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
         }
+        
         proxyURLLocation = proxyURLLocation + "/apimodels/proxyUrl"; // Proxy URL location format: https://<domain name>/<alpha/beta/v1>/o/apihub/apimodels/proxyUrl
         self.makeAJAXCall({"url":proxyURLLocation, "callback":self.storeProxyURL}); // Make an AJAX call to retrieve proxy URL to make send request call.
         Apigee.APIModel.initMethodsPageEvents();
@@ -910,7 +950,14 @@ Apigee.APIModel.Editor = function() {
                 } else {
                     headerParamValue = jQuery(this).find("[data-role='value']").val();
                 }
-                headersList.push({"name" : headerParamName, "value" : headerParamValue});
+                if (headerParamName == "Content-Type" && jQuery(this).attr("data-scope") == "resource" ) {
+                    if ( jQuery.trim(jQuery("[data-role='content-type']").text()) == "") {
+                        headersList.push({"name" : headerParamName, "value" : headerParamValue});
+                    }
+                } else {
+                    headersList.push({"name" : headerParamName, "value" : headerParamValue});
+                }
+                
                 if (jQuery(this).find("span.required").length && jQuery(this).find("[data-role='value']").val() == "") {
                     isHeaderParamMissing = true;
                     headerParamMissing.push(headerParamName);
@@ -1062,6 +1109,10 @@ Apigee.APIModel.Editor = function() {
         // If a method has an attachment, we need to modify the standard AJAX the following way.
         var bodyPayload = null;
         var contentTypeValue = "application/x-www-form-urlencoded;charset=utf-8";
+        if (jQuery.trim(jQuery("[data-role='content-type']").text()) != "" ) {
+            contentTypeValue = jQuery.trim(jQuery("[data-role='content-type']").text());
+        }
+        
         var processDataValue = true;
         if (jQuery("[data-role='attachments-list']").length || (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='body-param-list']").length)) {
             var multiPartTypes = "";
@@ -2094,3 +2145,101 @@ jQuery(this).siblings("textarea").val(jQuery.trim(jQuery(this).html())).height(j
     };
 };
 Apigee.APIModel.InlineEdit.prototype = new Apigee.APIModel.Common();
+
+Apigee.APIModel.SwaggerModel = function(modelName, obj) {
+    this.name = obj.id != null ? obj.id : modelName;
+    this.properties = [];
+    var propertyName;
+    for (propertyName in obj.properties) {
+        if (obj.required != null) {
+            var value;
+            for (value in obj.required) {
+                if (propertyName === obj.required[value]) {
+                    obj.properties[propertyName].required = true;
+                }
+            }
+        }
+        prop = new Apigee.APIModel.SwaggerModelProperty(propertyName, obj.properties[propertyName]);
+        this.properties.push(prop);
+    }
+    this.createJSONSample = function(modelsToIgnore) {
+        if(Apigee.APIModel.sampleModels[this.name]) {
+            return Apigee.APIModel.sampleModels[this.name];
+        }
+        else {
+            var result = {};
+            var modelsToIgnore = (modelsToIgnore||[])
+            modelsToIgnore.push(this.name);
+            for (var i = 0; i < this.properties.length; i++) {
+                prop = this.properties[i];
+                result[prop.name] = prop.getSampleValue(modelsToIgnore);
+            }
+            modelsToIgnore.pop(this.name);
+            return result;
+        }
+    };
+};
+
+Apigee.APIModel.SwaggerModelProperty = function(name, obj) {
+    this.name = name;
+    this.dataType = obj.type || obj.dataType || obj["$ref"];
+    this.isCollection = this.dataType && (this.dataType.toLowerCase() === 'array' || this.dataType.toLowerCase() === 'list' || this.dataType.toLowerCase() === 'set');
+    this.descr = obj.description;
+    this.required = obj.required;
+    if (obj.items != null) {
+        if (obj.items.type != null) {
+            this.refDataType = obj.items.type;
+        }
+        if (obj.items.$ref != null) {
+            this.refDataType = obj.items.$ref;
+        }
+    }
+    this.dataTypeWithRef = this.refDataType != null ? (this.dataType + '[' + this.refDataType + ']') : this.dataType;
+    if (obj.allowableValues != null) {
+        this.valueType = obj.allowableValues.valueType;
+        this.values = obj.allowableValues.values;
+        if (this.values != null) {
+            this.valuesString = "'" + this.values.join("' or '") + "'";
+        }
+    }
+    if (obj["enum"] != null) {
+        this.valueType = "string";
+        this.values = obj["enum"];
+        if (this.values != null) {
+            this.valueString = "'" + this.values.join("' or '") + "'";
+        }
+    }
+    this.getSampleValue = function(modelsToIgnore) {
+        var result;
+        if ((this.refModel != null) && (modelsToIgnore.indexOf(prop.refModel.name) === -1)) {
+            result = this.refModel.createJSONSample(modelsToIgnore);
+        } else {
+            if (this.isCollection) {
+                result = this.toSampleValue(this.refDataType);
+            } else {
+                result = this.toSampleValue(this.dataType);
+            }
+        }
+        if (this.isCollection) {
+            return [result];
+        } else {
+            return result;
+        }
+    };
+    this.toSampleValue = function(value) {
+        var result;
+        if (value === "integer") {
+            result = 0;
+        } else if (value === "boolean") {
+            result = false;
+        } else if (value === "double" || value === "number") {
+            result = 0.0;
+        } else if (value === "string") {
+            result = "";
+        } else {
+            result = value;
+        }
+        return result;
+    };
+};
+Apigee.APIModel.sampleModels = {};    
