@@ -288,6 +288,35 @@
                 </form>                            
                 {{/body}}
             </div>
+
+            {{#if body.sample}}
+            {{#body}}
+            {{#if sample}}
+            <!-- Request payload section -->
+            <div class="request_payload">
+                <h3>Request Body</h3>
+                {{#if doc}}
+                <ul class="nav nav-pills" data-role="request-payload-link" >
+                    <li class="active">
+                        <a href="javascript:void(0)" data-role="example-link">Value</a>
+                    </li>
+                    <li>
+                        <a href="javascript:void(0)" data-role="docs-link">Description</a>
+                    </li>
+                </ul>
+                {{/if}}
+                <div data-role="request-payload-docs" class="docs">
+                    {{{doc}}}
+                </div>
+                <div data-role="request-payload-example">
+                    <textarea data-format="{{contentType}}">
+                        {{sample}}
+                    </textarea>
+                </div>
+            </div>
+            {{/if}}
+            {{/body}}
+            {{else}}
             {{#if apiSchema.inlineSchema}}
             <div class="hide" data-role="api_scheme">
                 {{apiSchema.inlineSchema}}
@@ -315,35 +344,9 @@
                 </div>
             </div>
             {{/body}}
-            
-            {{else}}
-            {{#body}}
-            {{#if sample}}
-            <!-- Request payload section -->
-            <div class="request_payload">
-                <h3>Request Body</h3>
-                {{#if doc}}
-                <ul class="nav nav-pills" data-role="request-payload-link" >
-                    <li class="active">
-                        <a href="javascript:void(0)" data-role="example-link">Value</a>
-                    </li>
-                    <li>
-                        <a href="javascript:void(0)" data-role="docs-link">Description</a>
-                    </li>
-                </ul>
-                {{/if}}
-                <div data-role="request-payload-docs" class="docs">
-                    {{{doc}}}
-                </div>
-                <div data-role="request-payload-example">
-                    <textarea data-format="{{contentType}}">
-                        {{sample}}
-                    </textarea>
-                </div>
-            </div>
             {{/if}}
-            {{/body}}
             {{/if}}
+
             {{#if-template-param this.parameters}}
             <div class="hide" data-role="template-params">
                 {{#template-list this.parameters}}
