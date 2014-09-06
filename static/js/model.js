@@ -490,6 +490,17 @@ Apigee.APIModel.Editor = function() {
             var valueElement = jQuery(this).find("[data-role='value']");
             valueElement.attr('data-original-value',jQuery.trim(valueElement.val()));
         });
+        var bodyParamListLength = jQuery("[data-role='body-param-list']").length;
+        jQuery("[data-role='body-param-list']").each(function() {
+            var bodyParamName = jQuery(this).find("[data-role='name']").text();
+            if (bodyParamName == "Content-Type") {
+                jQuery(this).remove();
+                if (bodyParamListLength == 1) {
+                    $("#formParams").remove();
+                }
+            }
+        });
+        
         // Remove the last extra comma symbol from category field.
         var categoryElement = jQuery("[data-role='category']");
         var categoryElementValue = jQuery.trim(categoryElement.text());
@@ -562,7 +573,9 @@ Apigee.APIModel.Editor = function() {
     this.storeProxyURL = function(data) {
         Apigee.APIModel.proxyURL = data.proxyUrl;
         Apigee.APIModel.authUrl = data.authUrl;
-        Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
+        if (Apigee.APIModel.proxyURL.indexOf("/sendrequest") == -1 ) {
+            Apigee.APIModel.proxyURL = Apigee.APIModel.proxyURL + "/sendrequest";
+        }        
     }
     /**
      * Success callback method of a OAuth2 web serser auth URL AJAX call.
@@ -1123,12 +1136,15 @@ Apigee.APIModel.Editor = function() {
                 jQuery("#working_alert").fadeOut();
                 return;
             }
+
             if (jQuery("[data-role='body-param-list']").length) {
+                if (jQuery("#formParams").length) {
                 var formParams = jQuery("#formParams").serialize();
-                if (!jQuery("#formAttachment input[name='root-fields']").length) {
-                    jQuery("#formAttachment").prepend('<input type="hidden" name="root-fields" value="'+formParams+'"/>');
-                } else {
-                    jQuery("#formAttachment input[name='root-fields']").val(formParams);
+                    if (!jQuery("#formAttachment input[name='root-fields']").length) {
+                        jQuery("#formAttachment").prepend('<input type="hidden" name="root-fields" value="'+formParams+'"/>');
+                    } else {
+                        jQuery("#formAttachment input[name='root-fields']").val(formParams);
+                    }
                 }
                 multiPartTypes = "param"; 
                 if (jQuery('[data-role="request-payload-example"]').length || jQuery("[data-role='attachments-list']").length) {
@@ -1147,6 +1163,7 @@ Apigee.APIModel.Editor = function() {
                 }
             }
 
+
             if (jQuery('[data-role="request-payload-example"]').length) {
                 if (!jQuery("#formAttachment textarea[name='text']").length) {
                     if (jQuery("#formAttachment input[name='root-fields']").length) {
@@ -1158,11 +1175,9 @@ Apigee.APIModel.Editor = function() {
                     jQuery("#formAttachment textarea[name='text']").val(window.apiModelEditor.getRequestPayLoad());
                 }
             }
-            if (jQuery("#formParams").length) {
-                bodyPayload = new FormData(jQuery("form")[1]); // Create an arbitrary FormData instance
-            } else {
-                bodyPayload = new FormData(jQuery("form")[0]); // Create an arbitrary FormData instance
-            }
+
+            bodyPayload = new FormData(jQuery("#formAttachment")[0]); 
+
             contentTypeValue = false;
             processDataValue = false;
             
