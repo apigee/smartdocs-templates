@@ -552,16 +552,20 @@ Apigee.APIModel.Editor = function() {
         }
 
         window.apiModelEditor.initRequestPayloadEditor(); // Initialize the request payload sample editor.        
-        var proxyURLLocation = windowLocation.split("/apimodels/")[0];
-        if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
-            proxyURLLocation = Drupal.settings.devconnect_docgen.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
-        }
-        if (Apigee.APIModel.apiModelBaseUrl) {
-            proxyURLLocation = Apigee.APIModel.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
-        }
+        if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined" && typeof Drupal.settings.devconnect_docgen != "undefined" && Drupal.settings.devconnect_docgen.dataProxyUrl) {
+            Apigee.APIModel.proxyURL = Drupal.settings.devconnect_docgen.dataProxyUrl + "/sendrequest";
+            Apigee.APIModel.authUrl = Drupal.settings.devconnect_docgen.dataAuthUrl;
+        } else {
+            var proxyURLLocation = windowLocation.split("/apimodels/")[0];    
+            if (Apigee.APIModel.apiModelBaseUrl) {
+                proxyURLLocation = Apigee.APIModel.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
+            } else if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
+                proxyURLLocation = Drupal.settings.devconnect_docgen.apiModelBaseUrl +"/v1/o/" + Apigee.APIModel.organizationName;
+            }
+            proxyURLLocation = proxyURLLocation + "/apimodels/proxyUrl"; // Proxy URL location format: https://<domain name>/<alpha/beta/v1>/o/apihub/apimodels/proxyUrl
+            self.makeAJAXCall({"url":proxyURLLocation, "callback":self.storeProxyURL}); // Make an AJAX call to retrieve proxy URL to make send request call.
+        }        
         
-        proxyURLLocation = proxyURLLocation + "/apimodels/proxyUrl"; // Proxy URL location format: https://<domain name>/<alpha/beta/v1>/o/apihub/apimodels/proxyUrl
-        self.makeAJAXCall({"url":proxyURLLocation, "callback":self.storeProxyURL}); // Make an AJAX call to retrieve proxy URL to make send request call.
         Apigee.APIModel.initMethodsPageEvents();
         Apigee.APIModel.initMethodsAuthDialogsEvents();
     };
