@@ -433,7 +433,7 @@
                     </div>
                     <div class="method_data description">
                         <div data-role="description" data-allow-edit="true">
-                            {{{description}}}
+                            {{{this.description}}}
                         </div>
                     </div>
                 </li>
