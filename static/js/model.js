@@ -496,7 +496,7 @@ Apigee.APIModel.Editor = function() {
             if (bodyParamName == "Content-Type") {
                 jQuery(this).remove();
                 if (bodyParamListLength == 1) {
-                    $("#formParams").remove();
+                    jQuery("#formParams").remove();
                 }
             }
         });
@@ -516,15 +516,14 @@ Apigee.APIModel.Editor = function() {
         jQuery("#method_content").show();
         
         //Swagger API Schema implementation
-        var apiSchema;
         if(jQuery("[data-role='api_scheme']").length) {
-            apiSchema = jQuery.parseJSON(jQuery("[data-role='api_scheme']").text()); // Parse and hold internal API schema.
+            Apigee.APIModel.apiSchemes = jQuery.parseJSON(jQuery("[data-role='api_scheme']").text()); // Parse and hold internal API schema.
         }  
-        if(apiSchema) {
+        if(Apigee.APIModel.apiSchemes) {
             var customDataTypeAvailable = false;
             var $bodyParamListNode = jQuery("[data-role='body-param-list']")
             $bodyParamListNode.each(function(){
-                modelName = $(this).attr('data-dataType');
+                modelName = jQuery(this).attr('data-dataType');
                 if (modelName) {
                     var curentParamCustomTypeFlag = true;
                     jQuery.each(supportedDataType, function( index, value ) {
@@ -535,9 +534,17 @@ Apigee.APIModel.Editor = function() {
                     });                
                     if (curentParamCustomTypeFlag) {
                         customDataTypeAvailable = true;
-                        var swaggerModel = new Apigee.APIModel.SwaggerModel( modelName, apiSchema[modelName]);
-                        var sampleFromAPISchema = swaggerModel.createJSONSample( false );
-                        jQuery('[data-role="request-payload-example"]').find("textarea").val(JSON.stringify(sampleFromAPISchema, null, "\t"));            
+                        customDataTypeIsArray = false;
+                        if(modelName.indexOf('Array[') ==0){
+                            customDataTypeIsArray = true;
+                            modelName = modelName.replace('Array[', '').replace(']', '');
+                        }
+                        var swaggerModel = new Apigee.APIModel.SwaggerModel( modelName, Apigee.APIModel.apiSchemes[modelName]);
+                        var sampleFromAPISchema = swaggerModel.createJSONSample(false);
+                        if(customDataTypeIsArray) {
+                            sampleFromAPISchema = [sampleFromAPISchema];
+                        }
+                        jQuery('[data-role="request-payload-example"]').find("textarea").val(JSON.stringify(sampleFromAPISchema, null, "\t"));
                         jQuery(this).remove();
                     }
                 }
@@ -2187,12 +2194,16 @@ Apigee.APIModel.SwaggerModel = function(modelName, obj) {
         }
         else {
             var result = {};
-            var modelsToIgnore = (modelsToIgnore||[])
+            modelsToIgnore = (modelsToIgnore||[]);
+            if(modelsToIgnore.indexOf(this.name)!== -1){
+                return this.name;
+            }
             modelsToIgnore.push(this.name);
             for (var i = 0; i < this.properties.length; i++) {
                 prop = this.properties[i];
                 result[prop.name] = prop.getSampleValue(modelsToIgnore);
             }
+            Apigee.APIModel.sampleModels[this.name] = result;
             modelsToIgnore.pop(this.name);
             return result;
         }
@@ -2229,14 +2240,15 @@ Apigee.APIModel.SwaggerModelProperty = function(name, obj) {
         }
     }
     this.getSampleValue = function(modelsToIgnore) {
+        modelsToIgnore = (modelsToIgnore||[]);
         var result;
-        if ((this.refModel != null) && (modelsToIgnore.indexOf(prop.refModel.name) === -1)) {
+        if ((this.refModel != null) && (modelsToIgnore.indexOf(this.refModel.name) === -1)) {
             result = this.refModel.createJSONSample(modelsToIgnore);
         } else {
             if (this.isCollection) {
-                result = this.toSampleValue(this.refDataType);
+                result = this.toSampleValue(this.refDataType, modelsToIgnore);
             } else {
-                result = this.toSampleValue(this.dataType);
+                result = this.toSampleValue(this.dataType, modelsToIgnore);
             }
         }
         if (this.isCollection) {
@@ -2245,7 +2257,7 @@ Apigee.APIModel.SwaggerModelProperty = function(name, obj) {
             return result;
         }
     };
-    this.toSampleValue = function(value) {
+    this.toSampleValue = function(value, modelsToIgnore) {
         var result;
         if (value === "integer") {
             result = 0;
@@ -2255,10 +2267,14 @@ Apigee.APIModel.SwaggerModelProperty = function(name, obj) {
             result = 0.0;
         } else if (value === "string") {
             result = "";
+        } else if (Apigee.APIModel.apiSchemes[value]) {
+            var swaggerModel = new Apigee.APIModel.SwaggerModel( value, Apigee.APIModel.apiSchemes[value]);
+            result = swaggerModel.createJSONSample(modelsToIgnore);
         } else {
             result = value;
         }
         return result;
     };
 };
-Apigee.APIModel.sampleModels = {};    
+Apigee.APIModel.sampleModels = {};
+Apigee.APIModel.apiSchemes = {};
