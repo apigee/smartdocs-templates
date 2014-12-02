@@ -1287,6 +1287,7 @@ Apigee.APIModel.Editor = function() {
                     rawCode = rawCode.replace(/\n(\s*)},\n{/g, "\n$1},\n$1{");
                     responseContainerElement.append("<pre><code class='language-javascript' id='some-code123'>"+rawCode+"</code></pre>");
                 } else { // Handle non JSON response content (treat as markup language)
+                    rawCode = vkbeautify.xml(rawCode);
                     rawCode =rawCode.replace(/>/g,"&gt;").replace(/</g,"&lt;");
                     responseContainerElement.append("<pre class='language-markup'><code class='language-markup' id='some-code'>"+rawCode+"</code></pre>");
 
@@ -1333,7 +1334,8 @@ Apigee.APIModel.Editor = function() {
                 bodyContent = bodyContent.replace(/\n(\s*)},\n{/g, "\n$1},\n$1{");
                 requestContainerElement.append("<pre class='language-javascript'><code class='language-javascript' id='some-code'>"+bodyContent+"</code></pre>");
             } else { // Non JSON request content.
-                bodyContent =bodyContent.replace(/>/g,"&gt;").replace(/</g,"&lt;");
+                bodyContent = vkbeautify.xml(bodyContent);
+                bodyContent = bodyContent.replace(/>/g,"&gt;").replace(/</g,"&lt;");
                 requestContainerElement.append("<pre class='language-markup'><code class='language-markup' id='some-code'>"+bodyContent+"</code></pre>");
             }
         }
@@ -2276,5 +2278,6 @@ Apigee.APIModel.SwaggerModelProperty = function(name, obj) {
         return result;
     };
 };
+
 Apigee.APIModel.sampleModels = {};
 Apigee.APIModel.apiSchemes = {};
