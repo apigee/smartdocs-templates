@@ -21,6 +21,8 @@
         this.loadDefinition = function(defintionUrl) {
             $http.get(defintionUrl)
                 .success(function(data, status, headers, config) {
+                    console.log(config.url);
+                    $location.search('api', config.url);
                     that.showDefinition(data);
                 })
                 .error(function(data, status, headers, config) {
