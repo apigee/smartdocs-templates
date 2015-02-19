@@ -48,14 +48,18 @@
                 angular.forEach(rValue.methods, function(mValue, mKey) {
                     var methodVerb = angular.uppercase(mValue.verb);
                     var methodName = mValue.displayName;
+                    var methodDescription = mValue.description;
                     var dataName = rKey+'||'+mKey;
                     var dataString = 'data-resourceIndex="'+dataName+'"';
+                    var tooltipString = 'data-toggle="tooltip" data-placement="auto" title="'+methodDescription.replace(/<[^>]+>/gm, '')+'"';
                     var anchorClass = "list-group-item";
                     if (methodMap.hasOwnProperty(methodVerb)) anchorClass += " list-group-item-"+methodMap[methodVerb];
-                    $("#method_list").append('<a class="'+anchorClass+'" href="#" '+dataString+'><span class="label label-default">'+methodVerb+'</span>'+methodName+'</a>');
+                    $("#method_list").append('<a class="'+anchorClass+'" href="#" '+dataString+' '+tooltipString+'><span class="label label-default">'+methodVerb+'</span>'+methodName+'</a>');
                     $("#method_pulldown").append('<option '+dataString+' value="'+dataName+'">'+methodVerb+' '+methodName+'</option>');
                 });
             });
+            //initialize links and options
+            $('[data-toggle="tooltip"]').tooltip();
         };
         this.grabDef = function() {
             var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
