@@ -26,6 +26,33 @@ body > .container {
     padding-left: 15px;
 }
 
+label, dt {
+    text-transform: uppercase;
+}
+
+dd {
+    margin-bottom: 1em;
+}
+
+.input-group-addon {
+    &.info {
+        color: ##31708f;
+        background-color: #d9edf7;
+    }
+    &.warning {
+        color: #8a6d3b;
+        background-color: #fcf8e3;
+    }
+    &.success {
+        color: #3c763d;
+        background-color: #dff0d8;
+    }
+    &.danger {
+        color: #a94442;
+        background-color: #f2dede;
+    }
+}
+
 #method_list {
     span.label {
         display: inline-block;

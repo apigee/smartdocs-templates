@@ -17,7 +17,7 @@
             <div class="form-group">
                 <label for="request_url">Request URL</label>
                 <div class="input-group">
-                    <div class="input-group-addon" id="request_method">METHOD</div>
+                    <span class="input-group-addon text-warning" id="request_method">METHOD</span>
                     <input type="text" class="form-control" id="request_url" placeholder="URL">
                     <span class="input-group-btn">
                         <button class="btn btn-primary" type="button">Go!</button>
@@ -27,15 +27,17 @@
         </form>
         <div role="tabpanel" class="row col-md-12">
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#parameters" aria-controls="parameters" role="tab" data-toggle="tab">Parameters</a></li>
-                <li role="presentation"><a href="#request" aria-controls="request" role="tab" data-toggle="tab">Request</a></li>
-                <li role="presentation"><a href="#response" aria-controls="response" role="tab" data-toggle="tab">Response</a></li>
+                <li role="presentation" class="active"><a href="#request_information_tab" aria-controls="request_information_tab" role="tab" data-toggle="tab">Information</a></li>
+                <li role="presentation"><a href="#request_parameters_tab" aria-controls="request_parameters_tab" role="tab" data-toggle="tab">Parameters</a></li>
+                <li role="presentation"><a href="#request_tab" aria-controls="request_tab" role="tab" data-toggle="tab">Request</a></li>
+                <li role="presentation"><a href="#response_tab" aria-controls="response_tab" role="tab" data-toggle="tab">Response</a></li>
             </ul>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="parameters">
-                    params go here
+                <div role="tabpanel" class="tab-pane active" id="request_information_tab">
+                    <dl class="dl-horizontal"></dl>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="request">
+                <div role="tabpanel" class="tab-pane" id="request_parameters_tab"></div>
+                <div role="tabpanel" class="tab-pane" id="request_tab">
                     <form>
                         <div class="form-group">
                             <label for="request_headers">Header</label>
@@ -47,7 +49,7 @@
                         </div>
                     </form>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="response">
+                <div role="tabpanel" class="tab-pane" id="response_tab">
                     <form>
                         <div class="form-group">
                             <label for="response_headers">Header</label>
