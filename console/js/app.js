@@ -18,20 +18,29 @@
     }]);
     app.controller('ConsoleController', ['$scope', '$http', '$location', function($scope, $http, $location) {
         var that = this;
-        this.loadDefinition = function(defintionUrl) {
-            $http.get(defintionUrl)
+
+        //TEMP LOADER -- TAKE THIS OUT
+        var tempJsonUrl = $location.absUrl();
+        var consoleSplit = tempJsonUrl.substr(0, tempJsonUrl.lastIndexOf('/console')) + '/assets/sample.json';
+        $("#jsonUrl").val(consoleSplit);
+
+        this.loadDef = function(defUrl) {
+            console.log('trying to grab '+defUrl);
+            $http.get(defUrl)
                 .success(function(data, status, headers, config) {
-                    console.log(config.url);
-                    $location.search('api', config.url);
-                    that.showDefinition(data);
+                    //console.log(config.url);
+                    //$location.search('api', config.url);
+                    //that.showDef(data);
+                    console.log('yes');
                 })
                 .error(function(data, status, headers, config) {
-                    that.grabDefinition();
+                    //that.grabDef();
+                    console.log('nope');
                 })
         };
-        this.showDefinition = function(theDefinition) {
-            console.log(theDefinition);
-            that.apiDefinition = theDefinition;
+        this.showDef = function(theDef) {
+            console.log(theDef);
+            that.apiDef = theDef;
             $("#method_list").html("");
             $("#method_pulldown").html("");
             var methodMap = {
@@ -40,7 +49,8 @@
                 POST : "success",
                 DELETE : "danger"
             }
-            angular.forEach(theDefinition.paths, function(pathValue, pathKey) {
+/*
+            angular.forEach(theDef.paths, function(pathValue, pathKey) {
                 angular.forEach(pathValue, function(methodValue, methodKey) {
                     var upperKey = angular.uppercase(methodKey);
                     var dataString = 'data-methodKey="'+methodKey+'" data-pathKey="'+pathKey+'"';
@@ -51,14 +61,16 @@
                     $("#method_pulldown").append('<option '+dataString+' value="'+methodKey+'_'+pathKey+'">'+nameString+'</option>');
                 });
             });
+*/
         };
-        this.grabDefinition = function() {
-            var swaggerUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
-            if (swaggerUrl) {
-                that.loadDefinition(swaggerUrl);
+        this.grabDef = function() {
+            console.log('grabbing def');
+            var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
+            if (jsonUrl) {
+                that.loadDef(jsonUrl);
             } else {
-                $("#notificationModal").modal('show').find("button.js-loadDefinition").click(function(event) {
-                    that.loadDefinition($.trim($("#swaggerUrl").val()));
+                $("#notificationModal").modal('show').find("button.js-loadDef").click(function(event) {
+                    that.loadDef($.trim($("#jsonUrl").val()));
                 });
             }
         }();
