@@ -44,19 +44,18 @@
                 POST : "success",
                 DELETE : "danger"
             }
-/*
-            angular.forEach(theDef.paths, function(pathValue, pathKey) {
-                angular.forEach(pathValue, function(methodValue, methodKey) {
-                    var upperKey = angular.uppercase(methodKey);
-                    var dataString = 'data-methodKey="'+methodKey+'" data-pathKey="'+pathKey+'"';
-                    var nameString = upperKey+' '+pathKey;
+            angular.forEach(theDef.resources, function(rValue, rKey) {
+                angular.forEach(rValue.methods, function(mValue, mKey) {
+                    var methodVerb = angular.uppercase(mValue.verb);
+                    var methodName = mValue.displayName;
+                    var dataName = rKey+'||'+mKey;
+                    var dataString = 'data-resourceIndex="'+dataName+'"';
                     var anchorClass = "list-group-item";
-                    if (methodMap.hasOwnProperty(upperKey)) anchorClass += " list-group-item-"+methodMap[upperKey];
-                    $("#method_list").append('<a class="'+anchorClass+'" href="#" '+dataString+'><span class="label label-default">'+upperKey+'</span>'+pathKey+'</a>');
-                    $("#method_pulldown").append('<option '+dataString+' value="'+methodKey+'_'+pathKey+'">'+nameString+'</option>');
+                    if (methodMap.hasOwnProperty(methodVerb)) anchorClass += " list-group-item-"+methodMap[methodVerb];
+                    $("#method_list").append('<a class="'+anchorClass+'" href="#" '+dataString+'><span class="label label-default">'+methodVerb+'</span>'+methodName+'</a>');
+                    $("#method_pulldown").append('<option '+dataString+' value="'+dataName+'">'+methodVerb+' '+methodName+'</option>');
                 });
             });
-*/
         };
         this.grabDef = function() {
             var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
