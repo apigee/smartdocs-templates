@@ -21,21 +21,16 @@
 
         //TEMP LOADER -- TAKE THIS OUT
         var tempJsonUrl = $location.absUrl();
-        var consoleSplit = tempJsonUrl.substr(0, tempJsonUrl.lastIndexOf('/console')) + '/assets/sample.json';
-        $("#jsonUrl").val(consoleSplit);
+        $("#jsonUrl").val(tempJsonUrl.substr(0, tempJsonUrl.lastIndexOf('/console')) + '/assets/des.json');
 
         this.loadDef = function(defUrl) {
-            console.log('trying to grab '+defUrl);
             $http.get(defUrl)
                 .success(function(data, status, headers, config) {
-                    //console.log(config.url);
-                    //$location.search('api', config.url);
-                    //that.showDef(data);
-                    console.log('yes');
+                    $location.search('api', config.url);
+                    that.showDef(data);
                 })
                 .error(function(data, status, headers, config) {
-                    //that.grabDef();
-                    console.log('nope');
+                    that.grabDef();
                 })
         };
         this.showDef = function(theDef) {
@@ -64,7 +59,6 @@
 */
         };
         this.grabDef = function() {
-            console.log('grabbing def');
             var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
             if (jsonUrl) {
                 that.loadDef(jsonUrl);
