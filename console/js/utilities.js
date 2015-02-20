@@ -199,6 +199,30 @@ var forEach = function(theObject, theFunction) {
 };
 
 /**
+    Wraps the given text with the given tag.
+    @param {string} theText - The text to wrap.
+    @param {string} theTag - The tag name to wrap around the text.
+    @param {object} tagAttributes - Optional attributes (like class, id, etc.) to be added to the tag.  Multiple values should be sent as an array.
+    @returns {string} theText - formatted message.
+    @see forceArray.
+*/
+var wrapWithTag = function(theText, theTag, tagAttributes) {
+    var theText = theText || '';
+    var theTag = (theTag) ? $.trim(theTag).toLowerCase() : false;
+    var tagAttributes = tagAttributes || false;
+    var attributesString = '';
+    if (tagAttributes) {
+        var attributesArray = [];
+        forEach(tagAttributes, function(attributeValue, attributeKey) {
+            attributesArray.push(attributeKey+'="'+forceArray(attributeValue).join(" ")+'"');
+        });
+        attributesString = ' '+attributesArray.join(" ");
+    }
+    if (theTag && (theText !== '')) theText = '<'+theTag+attributesString+'>'+theText+'</'+theTag+'>';
+    return theText;
+}
+
+/**
     Force a supplied item to be an array, if it is not already one.
     @param {string|array|object} rawItem - the raw item.
     @returns {array} - the forced array.

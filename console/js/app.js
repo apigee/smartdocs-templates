@@ -116,17 +116,45 @@
             var popUrl = function() {
                 $("#request_method").text(methodMap.verb).removeClass("info warning success danger");
                 if (that.verbMap.hasOwnProperty(methodMap.verb)) $("#request_method").addClass(that.verbMap[methodMap.verb]);
-                $("#request_url").val(methodMap.path);
+                $("#request_url").val(methodMap.path).attr({"data-path":methodMap.path,"data-base":methodMap.base});
             }();
             var popInfo = function() {
                 $("#request_information_tab").html("");
-                angular.forEach(["name", "description", "base", "path"], function(theName, theIndex) {
+                angular.forEach(["base", "name", "description"], function(theName, theIndex) {
                     $("#request_information_tab").append('<dt>'+theName+'</dt><dd>'+methodMap[theName]+'</dd>');
                 });
             }();
             var popParams = function() {
-                $("#request_parameters_tab form").html("");
-                console.log(methodMap.parameters);
+                $("#request_form").html("");
+                var paramOrder = ["template", "query", "header", "body"];
+                angular.forEach(methodMap.parameters, function(paramVal, paramKey) {
+                    if ($.inArray(paramKey, paramOrder) === -1) paramOrder.push(paramKey);
+                });
+                angular.forEach(paramOrder, function(paramType, typeIndex) {
+                    if (methodMap.parameters.hasOwnProperty(paramType)) {
+                        var thisSet = wrapWithTag(paramType, "legend");
+                        var setFields = [];
+                        angular.forEach(methodMap.parameters[paramType], function(paramValue, paramKey) {
+                            console.log(paramKey);
+                            console.log(paramValue);
+                            var inputId = "request_"+paramType+"_"+paramKey;
+                            var thisInput = wrapWithTag(paramKey, "label", {"for":inputId});
+                            var inputExtras = {
+                                name : paramKey,
+                                id : inputId,
+                                class : "form-control",
+                                type : "text"
+                            };
+                            if (paramValue.hasOwnProperty("defaultValue") && ((paramValue.defaultValue !== null) && (paramValue.defaultValue.length > 0))) inputExtras.placeholder = inputExtras.value = paramValue.defaultValue;
+                            if (paramValue.hasOwnProperty("required") && paramValue.required === true) inputExtras.required = true;
+                            thisInput += wrapWithTag(" ", "input", inputExtras);
+                            if (paramValue.hasOwnProperty("description") && ((paramValue.description !== null) && (paramValue.description.length > 0))) thisInput += wrapWithTag(paramValue.description, "p", {"class":"help-block"});
+                            setFields.push(wrapWithTag(thisInput, "div", {"class":"form-group"}));
+                        });
+                        thisSet += setFields.join("");
+                        $("#request_form").append(wrapWithTag(thisSet, "fieldset"));
+                    }
+                });
             }();
         }
     }]);
