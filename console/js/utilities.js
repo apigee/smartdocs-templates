@@ -23,6 +23,8 @@ var ApiBox = function() {
         /** If callInfo has a "settings" property, override callPayload data with the property value data. */
         if (callInfo.hasOwnProperty("settings")) $.extend(true, callPayload, callInfo.settings);
 
+        console.log(callPayload);
+
         /** Make the API ajax call. */
         $.ajax(callInfo.url, callPayload);
     };
@@ -218,9 +220,21 @@ var wrapWithTag = function(theText, theTag, tagAttributes) {
         });
         attributesString = ' '+attributesArray.join(" ");
     }
-    if (theTag && (theText !== '')) theText = '<'+theTag+attributesString+'>'+theText+'</'+theTag+'>';
+    if (theTag) {
+        theText = (theText !== "") ? '<'+theTag+attributesString+'>'+theText+'</'+theTag+'>' : '<'+theTag+attributesString+' />';
+    }
     return theText;
 }
+
+/**
+    Base64 encrypt a username and password, and return the value.
+    @param {string} username - user name.
+    @param {string} password - password.
+    @returns {string} - the Base64 encrypted value.
+*/
+var generateAuth = function(username, password) {
+    return $().crypt({method:"b64enc",source:username+':'+password});
+};
 
 /**
     Force a supplied item to be an array, if it is not already one.

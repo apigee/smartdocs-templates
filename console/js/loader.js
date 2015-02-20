@@ -1,6 +1,7 @@
 $(function() {
     var assetsToLoad = [
         '//code.jquery.com/jquery-migrate-1.2.1.min.js',
+        './js/jquery.crypt.min.js',
         '//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js',
         '//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js',
         '//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-cookies.js',

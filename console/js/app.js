@@ -42,6 +42,10 @@
         };
         this.showDef = function(theDef) {
             that.apiDef = theDef;
+            $("#submit_request").unbind("click").click(function(event) {
+                that.sendRequest();
+                return false;
+            });
             $("#method_list").html("");
             $("#method_pulldown").html("");
             angular.forEach(theDef.resources, function(rValue, rKey) {
@@ -58,7 +62,6 @@
                     $("#method_pulldown").append('<option '+dataString+' value="'+dataName+'">'+methodVerb+' '+methodName+'</option>');
                 });
             });
-            //initialize links and options
             $('[data-toggle="tooltip"]').tooltip();
             $("#method_list a").unbind("click").click(function(event) {
                 $("html, body").animate({scrollTop: 0}, "slow");
@@ -83,6 +86,7 @@
             var resourceKeys = resourceId.split("||");
             var theResource = that.apiDef.resources[resourceKeys[0]];
             var theMethod = theResource.methods[resourceKeys[1]];
+            $("#request_payload, #response_payload").html("");
             var methodMap = {
                 verb : angular.uppercase(theMethod.verb),
                 name : theMethod.displayName,
@@ -92,7 +96,22 @@
                 parameters : {}
             }
             var getParams = function() {
-                //params are hiding all over the place -- here's where we bring them together
+                if (theMethod.hasOwnProperty("authSchemes") && (theMethod.authSchemes !== null)) {
+                    angular.forEach(theMethod.authSchemes, function(theScheme, theKey) {
+                        if (angular.uppercase(theScheme) === "BASICAUTH") {
+                            methodMap.parameters.authentication = {
+                                login : {
+                                    name : "login",
+                                    dataType : "string"
+                                },
+                                password : {
+                                    name : "password",
+                                    dataType : "password"
+                                }
+                            }
+                        }
+                    });
+                }
                 angular.forEach([theResource, theMethod], function(theObj, theKey) {
                     if (theObj.hasOwnProperty("parameters") && (theObj.parameters !== null)) {
                         angular.forEach(theObj.parameters, function(pValue, pKey) {
@@ -126,7 +145,7 @@
             }();
             var popParams = function() {
                 $("#request_form").html("");
-                var paramOrder = ["template", "query", "header", "body"];
+                var paramOrder = ["authentication", "template", "query", "header", "body"];
                 angular.forEach(methodMap.parameters, function(paramVal, paramKey) {
                     if ($.inArray(paramKey, paramOrder) === -1) paramOrder.push(paramKey);
                 });
@@ -135,8 +154,6 @@
                         var thisSet = wrapWithTag(paramType, "legend");
                         var setFields = [];
                         angular.forEach(methodMap.parameters[paramType], function(paramValue, paramKey) {
-                            console.log(paramKey);
-                            console.log(paramValue);
                             var inputId = "request_"+paramType+"_"+paramKey;
                             var thisInput = wrapWithTag(paramKey, "label", {"for":inputId});
                             var inputExtras = {
@@ -145,18 +162,79 @@
                                 class : "form-control",
                                 type : "text"
                             };
+                            if (paramValue.hasOwnProperty("dataType") && (paramValue.dataType !== null)) {
+                                if (paramValue.dataType === "password") inputExtras.type = "password";
+                            }
                             if (paramValue.hasOwnProperty("defaultValue") && ((paramValue.defaultValue !== null) && (paramValue.defaultValue.length > 0))) inputExtras.placeholder = inputExtras.value = paramValue.defaultValue;
                             if (paramValue.hasOwnProperty("required") && paramValue.required === true) inputExtras.required = true;
-                            thisInput += wrapWithTag(" ", "input", inputExtras);
+                            thisInput += wrapWithTag("", "input", inputExtras);
                             if (paramValue.hasOwnProperty("description") && ((paramValue.description !== null) && (paramValue.description.length > 0))) thisInput += wrapWithTag(paramValue.description, "p", {"class":"help-block"});
                             setFields.push(wrapWithTag(thisInput, "div", {"class":"form-group"}));
                         });
                         thisSet += setFields.join("");
-                        $("#request_form").append(wrapWithTag(thisSet, "fieldset"));
+                        $("#request_form").append(wrapWithTag(thisSet, "fieldset", {"data-paramtype":paramType}));
                     }
                 });
             }();
         }
+        this.sendRequest = function() {
+            var requestInfo = {
+                settings : {
+                    type : $("#request_method").text(),
+                    processData : false,
+                    contentType : "application/json",
+                    success : function(data, textStatus, jqXHR) {
+                        console.log('success');
+                        console.log(data);
+                        console.log(jqXHR);
+                    },
+                    error : function(jqXHR, textStatus, errorThrown) {
+                        console.log('error');
+                        console.log(jqXHR);
+                    },
+                    complete : function(jqXHR, textStatus) {
+                        console.log('complete');
+                        console.log(jqXHR);
+                    }
+                }
+            };
+
+            //check for auth
+            if ($('#request_form fieldset[data-paramtype="authentication"] input').length > 0) {
+                if (!requestInfo.settings.hasOwnProperty("headers")) requestInfo.settings.headers = {};
+                requestInfo.settings.headers.Authorization = "Basic "+generateAuth($("#request_authentication_login").val(), $("#request_authentication_password").val());
+            }
+
+            //build the template and query params
+            requestInfo.url = $("#request_url").attr("data-base");
+            var tempPath = $("#request_url").attr("data-path");
+            $('#request_form fieldset[data-paramtype="template"] input').each(function() {
+                tempPath = tempPath.split("{"+$(this).attr("name")+"}").join($(this).val());
+            });
+            requestInfo.url += tempPath;
+            var queryParams = {};
+            $('#request_form fieldset[data-paramtype="query"] input').each(function() {
+                queryParams[$(this).attr("name")] = $(this).val();
+            });
+            requestInfo.url = urlEngine.setParams(queryParams, requestInfo.url);
+
+            //build the header params
+            $('#request_form fieldset[data-paramtype="header"] input').each(function() {
+                if (!requestInfo.settings.hasOwnProperty("headers")) requestInfo.settings.headers = {};
+                requestInfo.settings.headers[$(this).attr("name")] = $(this).val();
+            });
+
+            //build the body params
+            var requestData = {};
+            var doRequestData = false;
+            $('#request_form fieldset[data-paramtype="body"] input').each(function() {
+                requestData[$(this).attr("name")] = $(this).val();
+                doRequestData = true;
+            });
+            if (doRequestData) requestInfo.data = JSON.stringify(requestData);
+
+            apiEngine.doCall(requestInfo);
+        };
     }]);
     app.controller('HelpController', function() {});
     app.config(['$routeProvider', '$locationProvider',

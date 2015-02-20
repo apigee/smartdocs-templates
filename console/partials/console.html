@@ -18,9 +18,9 @@
                 <label for="request_url">Request URL</label>
                 <div class="input-group">
                     <span class="input-group-addon text-warning" id="request_method">METHOD</span>
-                    <input type="text" class="form-control" id="request_url" placeholder="URL">
+                    <input type="text" class="form-control" id="request_url" placeholder="URL" disabled="true">
                     <span class="input-group-btn">
-                        <button class="btn btn-primary" type="button">Go!</button>
+                        <button class="btn btn-primary" type="button" id="submit_request">Go!</button>
                     </span>
                 </div>
             </div>
@@ -42,24 +42,16 @@
                 <div role="tabpanel" class="tab-pane" id="request_tab">
                     <form>
                         <div class="form-group">
-                            <label for="request_headers">Header</label>
-                            <textarea class="form-control" id="request_headers" rows="5"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="request_body">Body</label>
-                            <textarea class="form-control" id="request_body" rows="12"></textarea>
+                            <label for="request_payload">Request Payload</label>
+                            <textarea class="form-control" id="request_payload" rows="15"></textarea>
                         </div>
                     </form>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="response_tab">
                     <form>
                         <div class="form-group">
-                            <label for="response_headers">Header</label>
-                            <textarea class="form-control" id="response_headers" rows="5"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="response_body">Body</label>
-                            <textarea class="form-control" id="response_body" rows="12"></textarea>
+                            <label for="response_payload">Response Payload</label>
+                            <textarea class="form-control" id="response_payload" rows="15"></textarea>
                         </div>
                     </form>
                 </div>
