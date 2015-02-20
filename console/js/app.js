@@ -83,14 +83,36 @@
             var resourceKeys = resourceId.split("||");
             var theResource = that.apiDef.resources[resourceKeys[0]];
             var theMethod = theResource.methods[resourceKeys[1]];
-            console.log(theMethod);
             var methodMap = {
                 verb : angular.uppercase(theMethod.verb),
                 name : theMethod.displayName,
                 description : theMethod.description,
                 path : theMethod.path,
-                base : theMethod.baseUrl
+                base : theMethod.baseUrl,
+                parameters : {}
             }
+            var getParams = function() {
+                //params are hiding all over the place -- here's where we bring them together
+                angular.forEach([theResource, theMethod], function(theObj, theKey) {
+                    if (theObj.hasOwnProperty("parameters") && (theObj.parameters !== null)) {
+                        angular.forEach(theObj.parameters, function(pValue, pKey) {
+                            if (pValue.hasOwnProperty("type") && pValue.hasOwnProperty("name")) {
+                                var cleanType = angular.lowercase(pValue.type);
+                                if (!methodMap.parameters.hasOwnProperty(cleanType)) methodMap.parameters[cleanType] = {};
+                                methodMap.parameters[cleanType][pValue.name] = pValue;
+                            }
+                        });
+                    }
+                    if (theObj.hasOwnProperty("body") && (theObj.body !== null)) {
+                        if (theObj.body.hasOwnProperty("parameters") && (theObj.body.parameters !== null) && (theObj.body.parameters.length > 0)) {
+                            if (!methodMap.parameters.hasOwnProperty("body")) methodMap.parameters.body = {};
+                            angular.forEach(theObj.body.parameters, function(pValue, pKey) {
+                                if (pValue.hasOwnProperty("name")) methodMap.parameters.body[pValue.name] = pValue;
+                            });
+                        }
+                    }
+                });
+            }();
             var popUrl = function() {
                 $("#request_method").text(methodMap.verb).removeClass("info warning success danger");
                 if (that.verbMap.hasOwnProperty(methodMap.verb)) $("#request_method").addClass(that.verbMap[methodMap.verb]);
@@ -101,6 +123,10 @@
                 angular.forEach(["name", "description", "base", "path"], function(theName, theIndex) {
                     $("#request_information_tab").append('<dt>'+theName+'</dt><dd>'+methodMap[theName]+'</dd>');
                 });
+            }();
+            var popParams = function() {
+                $("#request_parameters_tab form").html("");
+                console.log(methodMap.parameters);
             }();
         }
     }]);
