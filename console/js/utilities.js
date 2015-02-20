@@ -12,8 +12,8 @@ var ApiBox = function() {
         var callPayload = {
             dataType : "json",
             headers : {
-                "accept" : "application/json",
-                "content-type" : "application/json"
+                accept : "application/json",
+                contentType : "text/plain"
             },
             success : function(data, textStatus, jqXHR) {},
             error : function(jqXHR, textStatus, errorThrown) {},
@@ -22,8 +22,6 @@ var ApiBox = function() {
 
         /** If callInfo has a "settings" property, override callPayload data with the property value data. */
         if (callInfo.hasOwnProperty("settings")) $.extend(true, callPayload, callInfo.settings);
-
-        console.log(callPayload);
 
         /** Make the API ajax call. */
         $.ajax(callInfo.url, callPayload);
@@ -225,6 +223,23 @@ var wrapWithTag = function(theText, theTag, tagAttributes) {
     }
     return theText;
 }
+
+/**
+    Make a pretty string out of a raw JSON string.
+    @param {string} rawJson - the raw JSON string.
+    @returns {string} prettyJson - the pretty JSON string.
+*/
+var cleanJson = function(rawJson) {
+    var jsonObject;
+    try {
+        jsonObject = JSON.parse(rawJson);
+    } catch (e) {
+        jsonObject = false;
+    }
+    prettyJson = (jsonObject) ? JSON.stringify(jsonObject, null, '\t') : rawJson;
+    return prettyJson;
+}
+
 
 /**
     Base64 encrypt a username and password, and return the value.

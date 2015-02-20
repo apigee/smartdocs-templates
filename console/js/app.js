@@ -181,21 +181,7 @@
             var requestInfo = {
                 settings : {
                     type : $("#request_method").text(),
-                    processData : false,
-                    contentType : "application/json",
-                    success : function(data, textStatus, jqXHR) {
-                        console.log('success');
-                        console.log(data);
-                        console.log(jqXHR);
-                    },
-                    error : function(jqXHR, textStatus, errorThrown) {
-                        console.log('error');
-                        console.log(jqXHR);
-                    },
-                    complete : function(jqXHR, textStatus) {
-                        console.log('complete');
-                        console.log(jqXHR);
-                    }
+                    contentType : "text/plain"
                 }
             };
 
@@ -233,6 +219,18 @@
             });
             if (doRequestData) requestInfo.data = JSON.stringify(requestData);
 
+            var requestString = JSON.stringify(requestInfo);
+            $("#request_payload").html(cleanJson(JSON.stringify(requestInfo)));
+
+            requestInfo.settings.processData = false;
+            requestInfo.settings["success"] = function(data, textStatus, jqXHR) {
+                $("#response_payload").html(cleanJson(JSON.stringify(data)));
+            };
+            requestInfo.settings["error"] = function(jqXHR, textStatus, errorThrown) {
+                $("#response_payload").html(cleanJson(JSON.stringify(jqXHR.responseJSON)));
+            }
+
+            $("#response_tab_trigger").click();
             apiEngine.doCall(requestInfo);
         };
     }]);
