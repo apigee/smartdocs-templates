@@ -248,9 +248,9 @@
                 templateUrl : 'https://demo-test.apigee.net/console/partials/help.html',
                 controller  : 'HelpController'
             });
-            $routeProvider.otherwise({
-                redirectTo : '/console'
-            });
+//            $routeProvider.otherwise({
+//                redirectTo : '/console'
+//            });
             $locationProvider.html5Mode(true).hashPrefix('!');
         }
     ]);
