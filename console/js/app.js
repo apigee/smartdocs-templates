@@ -37,11 +37,14 @@
                     that.showDef(data);
                 })
                 .error(function(data, status, headers, config) {
-                    that.grabDef();
+                    //that.grabDef();
+                    that.showDef(model);
                 })
         };
+
         this.showDef = function(theDef) {
             that.apiDef = theDef;
+						
             $("#submit_request").unbind("click").click(function(event) {
                 that.sendRequest();
                 return false;
@@ -238,11 +241,11 @@
     app.config(['$routeProvider', '$locationProvider',
         function($routeProvider, $locationProvider) {
             $routeProvider.when('/console', {
-                templateUrl : 'partials/console.html',
+                templateUrl : 'https://demo-test.apigee.net/console/partials/console.html',
                 controller : 'ConsoleController'
             });
             $routeProvider.when('/help', {
-                templateUrl : 'partials/help.html',
+                templateUrl : 'https://demo-test.apigee.net/console/partials/help.html',
                 controller  : 'HelpController'
             });
             $routeProvider.otherwise({
