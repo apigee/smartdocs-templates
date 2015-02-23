@@ -28,6 +28,7 @@ body > .container {
 label, dt, legend {
     text-transform: uppercase;
     font-weight: bold;
+    font-size: 10px;
 }
 
 dd {
@@ -53,11 +54,33 @@ dd {
     }
 }
 
+.tooltip {
+    font-size: 12px;
+}
+
 #method_list {
     span.label {
         display: inline-block;
         min-width: 54px;
+        font-size: 10px;
         margin-right: 1em;
+    }
+}
+
+#console_request_form {
+    padding-left: 0;
+}
+
+.nav-tabs {
+    li {
+        font-size: 14px;
+    }
+}
+@media screen and (max-width:767px) {
+    .nav-tabs {
+        li {
+            font-size: 12px;
+        }
     }
 }
 
