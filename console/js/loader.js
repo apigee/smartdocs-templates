@@ -9,6 +9,7 @@ $(function() {
         '//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-route.js',
         '//ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular-sanitize.js',
         './js/utilities.min.js',
+        //'./js/model.js', //UNCOMMENT THIS LINE IF YOU WANT TO GRAB MODEL LOCALLY
         './js/app.min.js'
     ];
     var loadAsset = function(nextAsset) {
