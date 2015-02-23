@@ -24,12 +24,6 @@
             POST : "success",
             DELETE : "danger"
         }
-
-        //TEMP LOADER -- TAKE THIS OUT
-        var tempJsonUrl = $location.absUrl();
-        $("#jsonUrl").val(tempJsonUrl.substr(0, tempJsonUrl.lastIndexOf('/console')) + '/assets/des.json');
-        //END TEMP LOADER
-
         this.loadDef = function(defUrl) {
             $http.get(defUrl)
                 .success(function(data, status, headers, config) {
@@ -37,14 +31,11 @@
                     that.showDef(data);
                 })
                 .error(function(data, status, headers, config) {
-                    //that.grabDef();
-                    that.showDef(model);
+                    that.grabDef();
                 })
         };
-
         this.showDef = function(theDef) {
             that.apiDef = theDef;
-						
             $("#submit_request").unbind("click").click(function(event) {
                 that.sendRequest();
                 return false;
@@ -76,13 +67,17 @@
             });
         };
         this.grabDef = function() {
-            var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
-            if (jsonUrl) {
-                that.loadDef(jsonUrl);
+            if (typeof model !== "undefined") {
+                that.loadDef(model);
             } else {
-                $("#notificationModal").modal('show').find("button.js-loadDef").click(function(event) {
-                    that.loadDef($.trim($("#jsonUrl").val()));
-                });
+                var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
+                if (jsonUrl) {
+                    that.loadDef(jsonUrl);
+                } else {
+                    $("#notificationModal").modal('show').find("button.js-loadDef").click(function(event) {
+                        that.loadDef($.trim($("#jsonUrl").val()));
+                    });
+                }
             }
         }();
         this.showMethod = function(resourceId) {
@@ -238,20 +233,4 @@
         };
     }]);
     app.controller('HelpController', function() {});
-    app.config(['$routeProvider', '$locationProvider',
-        function($routeProvider, $locationProvider) {
-            $routeProvider.when('/console', {
-                templateUrl : 'https://demo-test.apigee.net/console/partials/console.html',
-                controller : 'ConsoleController'
-            });
-            $routeProvider.when('/help', {
-                templateUrl : 'https://demo-test.apigee.net/console/partials/help.html',
-                controller  : 'HelpController'
-            });
-//            $routeProvider.otherwise({
-//                redirectTo : '/console'
-//            });
-            $locationProvider.html5Mode(true).hashPrefix('!');
-        }
-    ]);
 })();
