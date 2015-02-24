@@ -67,8 +67,8 @@
             });
         };
         this.grabDef = function() {
-            if (typeof model !== "undefined") {
-                that.loadDef(model);
+            if (model && (typeof model !== "undefined")) {
+                that.showDef(model);
             } else {
                 var jsonUrl = ($location.search().hasOwnProperty('api')) ? $location.search().api : false;
                 if (jsonUrl) {
