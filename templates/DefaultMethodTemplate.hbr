@@ -341,9 +341,9 @@
                     {{/if}}
                     {{/body}}
                     {{else}}
-                    {{#if apiSchema.inlineSchema}}
+                    {{#if apiSchema.expandedSchema}}
                     <div class="hide" data-role="api_scheme">
-                        {{apiSchema.inlineSchema}}
+                        {{apiSchema.expandedSchema}}
                     </div>          
                     {{#body}}
                     <!-- Request payload section -->
