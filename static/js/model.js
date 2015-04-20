@@ -1211,8 +1211,21 @@ Apigee.APIModel.Editor = function() {
             responseContainerElement.html("<strong> An internal error has occurred. Please retry your request.</strong>");
             return;
         }
+        var invalidJson = false;
         if (typeof data != "object") {
-            data = jQuery.parseJSON(data); // Parse the JSON.
+            try{
+                data = jQuery.parseJSON(data); // Parse the JSON.
+            }
+            catch(e){
+                jQuery("#working_alert").fadeOut();
+                invalidJson = true;
+            }
+            if(invalidJson){
+                //this error is most likely to happen when either the proxy url is not configured correctly or
+                //the backend sends a malformed JSON string as the response.
+                self.showError("The request could not be completed due to an error. Please try again or contact the administrator.");
+                return;
+            }
         }
         rawCode = unescape(data.responseContent); // Stores response content.
         //rawCode = jQuery.parseJSON(rawCode); //:TODO:: check the proxy and fix the issue and remove it.
