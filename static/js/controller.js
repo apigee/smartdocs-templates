@@ -159,3 +159,15 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
     oauth2Credentials.proxyURL = proxyURL;
     apiModelMethods.setOAuth2Credentials(oauth2Credentials);
 }
+
+window.addEventListener('message', oAuthAccessTokenAndLocationListener, false);
+
+function oAuthAccessTokenAndLocationListener(e) {
+    if (e.origin == '*') {
+        return;
+    } else {
+        var oauth2Credentials = e.data;
+        apiModelMethods.setOAuth2Credentials(oauth2Credentials);
+        console.log(e.data);
+    }
+}
