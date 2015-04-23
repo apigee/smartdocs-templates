@@ -160,14 +160,13 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
     apiModelMethods.setOAuth2Credentials(oauth2Credentials);
 }
 
-window.addEventListener('message', oAuthAccessTokenAndLocationListener, false);
-
+/**
+ * Event handler to handle the Oauth token message
+ */
 function oAuthAccessTokenAndLocationListener(e) {
-    if (e.origin == '*') {
-        return;
-    } else {
-        var oauth2Credentials = e.data;
-        apiModelMethods.setOAuth2Credentials(oauth2Credentials);
-        console.log(e.data);
-    }
+    var obj = e.data;
+    setAccessTokenAndLocation(obj.errorCode, obj.errorMessage, obj.accessToken, obj.accessTokenType, obj.accessToeknParamName, obj.proxyURL);
 }
+
+//Add a listener to listen for the oauth token message
+window.addEventListener('message', oAuthAccessTokenAndLocationListener, false);
