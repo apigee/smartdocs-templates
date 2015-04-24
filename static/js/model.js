@@ -820,9 +820,8 @@ Apigee.APIModel.Editor = function() {
             var oauth2Url = window.location.href;
             oauth2Url = windowLocation.split("/resources/")[0];
             if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
-                oauth2Url = Drupal.settings.devconnect_docgen.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
-            }
-            if (Apigee.APIModel.apiModelBaseUrl) {
+                oauth2Url = Drupal.settings.devconnect_docgen.oauth2AuthUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
+            } else if (Apigee.APIModel.apiModelBaseUrl) {
                 oauth2Url = Apigee.APIModel.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
             }
             self.closeAuthModal();

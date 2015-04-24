@@ -165,7 +165,7 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
  */
 function oAuthAccessTokenAndLocationListener(e) {
     var obj = e.data;
-    setAccessTokenAndLocation(obj.errorCode, obj.errorMessage, obj.accessToken, obj.accessTokenType, obj.accessToeknParamName, obj.proxyURL);
+    setAccessTokenAndLocation(obj.ERRORCODE, obj.ERRORMESSAGE, obj.ACCESSTOKEN, obj.ACCESSTOKENTYPE, obj.ACCESSTOKENPARAMNAME, obj.PROXYURL);
 }
 
 //Add a listener to listen for the oauth token message
