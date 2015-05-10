@@ -462,7 +462,7 @@
     margin: 0;
     border: none;
 }
-#method_content #request_response_container .request {
+#method_content #request_response_container .request, #method_content #request_response_container .curl {
     display: none;
 }
 #method_content #request_response_container div strong {
