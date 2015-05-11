@@ -18,7 +18,7 @@
         <header>
             <div class="content">
                 <div class="logo_container">
-                    YOUR LOGO HERE
+                    <a href="../../../../doc" title="Back to index">YOUR LOGO HERE</a>
                 </div>
             </div>
         </header>
@@ -49,12 +49,14 @@
                                 {{/if}}
                                 </p>
                             </div>
+                            {{#if body.contentType}}
                             <div>
                                 <p class="title">Content Type</p>
                                 <p class="data" data-role="content-type">
-                                    {{#body}}{{contentType}}{{/body}}
+                                    {{body.contentType}}
                                 </p>
                             </div>
+                            {{/if}}
                             <div>
                                 <p class="title">Category</p>
                                 <p class="data" data-role="category">

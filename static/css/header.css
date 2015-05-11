@@ -14,9 +14,11 @@ header .content {
     width: 946px;
     margin: 0 auto;
 }
-header .logo_container {
+header .logo_container, .logo_container a {
     padding: 10px 0 13px 13px;
     margin-left: -2px;
     height: 48px;
     float: left;
+    color: #ffffff;
+    text-decoration: none;
 }
