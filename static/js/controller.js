@@ -159,3 +159,14 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
     oauth2Credentials.proxyURL = proxyURL;
     apiModelMethods.setOAuth2Credentials(oauth2Credentials);
 }
+
+/**
+ * Event handler to handle the Oauth token message
+ */
+function oAuthAccessTokenAndLocationListener(e) {
+    var obj = e.data;
+    setAccessTokenAndLocation(obj.ERRORCODE, obj.ERRORMESSAGE, obj.ACCESSTOKEN, obj.ACCESSTOKENTYPE, obj.ACCESSTOKENPARAMNAME, obj.PROXYURL);
+}
+
+//Add a listener to listen for the oauth token message
+window.addEventListener('message', oAuthAccessTokenAndLocationListener, false);

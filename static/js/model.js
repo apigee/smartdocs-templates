@@ -587,14 +587,7 @@ Apigee.APIModel.Editor = function() {
      * @return {Void} opens a new window to make OAuth dance.
      */
     this.renderCallbackURL= function(data) {
-        if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
-            var oauth2AuthUrlPart1 = data.authUrl.split("redirect_uri=")[0];
-            var oauth2AuthUrlPart2 = data.authUrl.split("redirect_uri=")[1];
-            oauth2AuthUrlPart2 = oauth2AuthUrlPart1 + "client_id=" + oauth2AuthUrlPart2.split("client_id=")[1] + "&redirect_uri="+encodeURIComponent(Drupal.settings.devconnect_docgen.oauth2AuthUrl+"?org="+Apigee.APIModel.organizationName+"&api="+Apigee.APIModel.apiName+"&revision="+Apigee.APIModel.revisionNumber);
-            window.open(oauth2AuthUrlPart2, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
-        } else {
-            window.open(data.authUrl, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
-        }
+        window.open(data.authUrl, "oauth2Window", "resizable=yes,scrollbars=yes,status=1,toolbar=1,height=500,width=500");
     };
     /**
      * Error callback method of a OAuth2 web serser auth URL AJAX call.
@@ -827,9 +820,8 @@ Apigee.APIModel.Editor = function() {
             var oauth2Url = window.location.href;
             oauth2Url = windowLocation.split("/resources/")[0];
             if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined") {
-                oauth2Url = Drupal.settings.devconnect_docgen.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
-            }
-            if (Apigee.APIModel.apiModelBaseUrl) {
+                oauth2Url = Drupal.settings.devconnect_docgen.oauth2AuthUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
+            } else if (Apigee.APIModel.apiModelBaseUrl) {
                 oauth2Url = Apigee.APIModel.apiModelBaseUrl + "/v1/o/" + Apigee.APIModel.organizationName + "/apimodels/"+ Apigee.APIModel.apiName+"/revisions/"+ Apigee.APIModel.revisionNumber;
             }
             self.closeAuthModal();
