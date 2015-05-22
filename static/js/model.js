@@ -953,7 +953,7 @@ Apigee.APIModel.Editor = function() {
         }
         //change the variable name to Target URL.
         var urlToTest = jQuery("[data-role='method_url_container']").text();
-        var methodVerb = jQuery.trim(jQuery("[data-role='verb']").text().toLowerCase()); // Retrieve the verb from the HTML element.
+        var methodVerb = jQuery.trim(jQuery("[data-role='verb']:first").text().toLowerCase()); // Retrieve the verb from the first HTML element.
 
         var headersList = [];
         // Loop through the header params and identify if required params are empty otherwise add header params in the list.
