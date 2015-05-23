@@ -146,7 +146,7 @@ Apigee.APIModel.inlineEditPageEvents = function() {
 
 }
 /**
- * Called after successful oAuth 2 dance.
+ * Called after successful OAuth 2 dance.
  * Constructs JSON object and calls the 'Apigee.APIModel.Details' class setOAuth2Credentials method.
  */
 setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, accessTokenType , accessToeknParamName, proxyURL) {
@@ -161,7 +161,7 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
 }
 
 /**
- * Event handler to handle the Oauth token message
+ * Event handler to handle the OAuth token message
  */
 function oAuthAccessTokenAndLocationListener(e) {
     var obj = e.data;
