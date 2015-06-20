@@ -1,4 +1,4 @@
-/* Co{mmon */
+/* Common */
 .col-sm-12 {
     padding-left: 0;
     padding-right: 0;
@@ -362,7 +362,7 @@
     content: " ";
     display: table;
     clear: both;
-} 
+}
 #method_content .operation_container .authentication {
     float: left;
     min-width: 170px;
@@ -388,7 +388,7 @@
 #method_content .icon-remove {
     height: 10px;
     width: 10px;
-    background: url(../img/icon_cancel.png) no-repeat;
+    background: url(../../../img/icon_cancel.png) no-repeat;
     display:none;
 }
 #method_content .operation_container .authentication .title {
@@ -462,6 +462,7 @@
     margin: 0;
     border: none;
 }
+#method_content #request_response_container .curl,
 #method_content #request_response_container .request {
     display: none;
 }
