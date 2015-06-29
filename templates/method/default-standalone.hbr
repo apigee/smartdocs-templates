@@ -127,19 +127,11 @@
                                     {{/required}}
                         </td>
                         <td>
-                                    {{#if required}}
+                            {{#if required}}
                             <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
-                                    {{else}}
-                              {{#if defaultValue}}
-                                <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
-                                    {{else}}
-                                {{#each options}}
-                                  {{#if @first}}
-                                    <input type="text" class="form-control" data-role="value" placeholder="{{this}}" value=""/>
-                                    {{/if}}
-                            {{/each}}
-                    {{/if}}
-                                        {{/if}}
+                            {{else}}
+                            <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                            {{/if}}
                         </td>
                         <td style="vertical-align:middle">
                             <p data-role="description" data-allow-edit="true">
