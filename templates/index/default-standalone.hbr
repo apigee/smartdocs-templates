@@ -52,7 +52,7 @@
                                 <span class="icon_lock" style="visibility:hidden" title="This method needs authentication."></span>
                                 {{/if}}
 
-                                <a data-role="method_name" title="View method details." href="../{{../revisionNumber}}/resources/{{../id}}/methods/{{id}}/doc">{{#if displayName}}{{displayName}}{{else}}{{name}}{{/if}}</a>
+                                <a data-role="method_name" title="View method details." href="../{{../revisionNumber}}/resources/{{../id}}/methods/{{name}}/doc">{{#if displayName}}{{displayName}}{{else}}{{name}}{{/if}}</a>
                                 <p data-role="resource_path" class="resource_path" title="{{../path}}">{{../path}}</p>
                             </div>
                             <div class="method_data description">
