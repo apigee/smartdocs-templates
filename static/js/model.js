@@ -448,7 +448,14 @@ Apigee.APIModel.Methods = function() {
 
     methodURLElement.find("span.template_param").each(function() {
       jQuery(this).siblings("span").attr("data-role",jQuery(this).text());
+      //OnFocus out if empty reset with default
+      jQuery(this).focusout(function(){
+          var $_this = jQuery(this);
+          if(jQuery.trim($_this.text()) == '') {
+              $_this.text($_this.siblings("span").attr("data-role"));
+          }});
     });
+
     // Create a sibling node to each template param and add original value to the siblings.
     // Original value will be used while validating template params.
     jQuery("[data-role='template-params']").find("p").each(function() {
