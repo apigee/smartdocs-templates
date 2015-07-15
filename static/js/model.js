@@ -225,7 +225,7 @@ Apigee.APIModel.Common = function() {
     userEmail = jQuery.trim(jQuery("[data-role='"+modalName+"']").find("#inputEmail").val());
     if (!userEmail.length) { // Check if it is empty.
       jQuery("#inputEmail").addClass("error");
-      errMessage += "<span>Email/Username required.</span><br/>";
+      errMessage += "<span>Email required.</span><br/>";
     }
     var userPasswordElement = jQuery("[data-role='"+modalName+"']").find("#inputPassword");
     if (!jQuery.trim(userPasswordElement.val()).length) { // Check if it is empty.
