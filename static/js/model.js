@@ -353,11 +353,11 @@ Apigee.APIModel.Editor = function() {
     if (jQuery('[data-role="request-payload-example"]').length) { // Check if request payload example element is available.
       jQuery('[data-role="request-payload-example"]').children("textarea").show();
       bodyPayloadElementValue = jQuery.trim(jQuery('[data-role="request-payload-example"]').find("textarea").val());
-      jQuery('.request_payload textarea').val(bodyPayloadElementValue);
-      bodyPayloadElement = jQuery('.request_payload textarea');
+      jQuery('.request_payload textarea.payload_text').val(bodyPayloadElementValue);
+      bodyPayloadElement = jQuery('.request_payload textarea.payload_text');
       if (bodyPayloadElement) { // Set xml/json mode based on the request payload value.
         var modeName = (bodyPayloadElement.data("format") == "application/xml") ? "xml" : "javascript";
-        editor = CodeMirror.fromTextArea( jQuery('.request_payload textarea').get(0), {
+        editor = CodeMirror.fromTextArea( jQuery('.request_payload textarea.payload_text').get(0), {
           mode: modeName,
           lineNumbers: true
         });
@@ -384,6 +384,48 @@ Apigee.APIModel.Editor = function() {
   this.setRequestPayLoad = function(payload) {
     editor.setValue(payload);
   };
+};
+Apigee.APIModel.Schema = function() {
+    var schema; // A Code mirror editor for the request payload.
+    /**
+     * This method initializes the request payload sample code mirror editor.
+     */
+    this.initRequestPayloadSchema = function() {
+        if (jQuery('[data-role="request-payload-schema"]').length) { // Check if request payload example element is available.
+            jQuery('[data-role="request-payload-schema"]').children("textarea").show();
+            bodyPayloadElementValue = jQuery.trim(jQuery('[data-role="request-payload-schema"]').find("textarea").val());
+            jQuery('.request_payload textarea.payload_text_schema').val(bodyPayloadElementValue);
+            bodyPayloadElement = jQuery('.request_payload textarea.payload_text_schema');
+            if (bodyPayloadElement) { // Set xml/json mode based on the request payload value.
+                var modeName = (bodyPayloadElement.data("format") == "application/xml") ? "xml" : "javascript";
+                schema = CodeMirror.fromTextArea( jQuery('.request_payload textarea.payload_text_schema').get(0), {
+                    mode: modeName,
+                    lineNumbers: true
+                });
+                if (schema.lineCount() <= 2) {
+                    schema.setSize('100%',schema.lineCount()*18);
+                } else {
+                    schema.setSize('100%',schema.lineCount()*15);
+                }
+
+            }
+            jQuery('[data-role="request-payload-schema"]').hide();
+        }
+    };
+    /*
+     * Get the request payload sample editor value.
+     * @return {String} Value of a request payload editor.
+     */
+    this.getRequestPayLoad = function() {
+        return schema.getValue();
+    };
+    /*
+     * Set request payload sample editor value.
+     * @param {String} payload A request payload value.
+     */
+    this.setRequestPayLoad = function(payload) {
+        schema.setValue(payload);
+    };
 };
 /**
  * This class handles operation page related functions.
@@ -531,10 +573,11 @@ Apigee.APIModel.Methods = function() {
     }
     if(Apigee.APIModel.apiSchemes) {
       var customDataTypeAvailable = false;
-      var $bodyParamListNode = jQuery("[data-role='body-param-list']")
+      var $bodyParamListNode = jQuery("[data-role='name']")
+      Apigee.APIModel.apiSchemes.models = [];
       $bodyParamListNode.each(function(){
         modelName = jQuery(this).attr('data-dataType');
-        if (modelName) {
+        if (modelName && modelName != 'Content-Type') {
           var curentParamCustomTypeFlag = true;
           jQuery.each(supportedDataType, function( index, value ) {
             if (modelName == value) {
@@ -550,6 +593,7 @@ Apigee.APIModel.Methods = function() {
               modelName = modelName.replace('Array[', '').replace(']', '');
             }
             var swaggerModel = new Apigee.APIModel.SwaggerModel( modelName, Apigee.APIModel.apiSchemes[modelName]);
+              Apigee.APIModel.apiSchemes.models.push(swaggerModel);
             var sampleFromAPISchema = swaggerModel.createJSONSample( false );
             if(customDataTypeIsArray) {
               sampleFromAPISchema = [sampleFromAPISchema];
@@ -569,6 +613,7 @@ Apigee.APIModel.Methods = function() {
     }
 
     window.apiModelEditor.initRequestPayloadEditor(); // Initialize the request payload sample editor.
+    window.apiModelSchema.initRequestPayloadSchema(); // Initialize the request payload sample schema.
     if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined" && typeof Drupal.settings.smartdocs != "undefined" && Drupal.settings.smartdocs.dataProxyUrl) {
       Apigee.APIModel.proxyURL = Drupal.settings.smartdocs.dataProxyUrl + "/sendrequest";
       Apigee.APIModel.authUrl = Drupal.settings.smartdocs.dataAuthUrl;
@@ -913,6 +958,7 @@ Apigee.APIModel.Methods = function() {
       var role = element.attr("data-role");
       var requestPayloadDocsElement = jQuery("[data-role='request-payload-docs']");
       var requestPayloadExampleElement = jQuery("[data-role='request-payload-example']");
+      var requestPayloadSchemaElement = jQuery("[data-role='request-payload-schema']");
       if (requestPayloadDocsElement.siblings("textarea").length) { // show/hide text area in inline edit use case.
         requestPayloadDocsElement.siblings("textarea").hide();
         requestPayloadDocsElement.siblings("a.allow_edit").hide();
@@ -920,11 +966,17 @@ Apigee.APIModel.Methods = function() {
       if (requestPayloadExampleElement.siblings("a.allow_edit").length) {
         requestPayloadExampleElement.siblings("a.allow_edit").hide();
       }
-      if (role =="docs-link") {
+      if (role == "docs-link") {
         requestPayloadExampleElement.hide();
+        requestPayloadSchemaElement.hide();
         requestPayloadDocsElement.show();
+      } else if (role == "schema-link") {
+        requestPayloadSchemaElement.show();
+        requestPayloadExampleElement.hide();
+        requestPayloadDocsElement.hide();
       } else {
         requestPayloadDocsElement.hide();
+        requestPayloadSchemaElement.hide();
         requestPayloadExampleElement.show();
       }
     }
@@ -1943,7 +1995,7 @@ Apigee.APIModel.InlineEdit = function() {
       if (jQuery(this).hasClass("resource_description") || jQuery(this).attr('data-role') == "request-payload-docs" || jQuery(this).attr('data-role') == "response-payload-docs") {
         currentEdiatableElementValue = jQuery.trim(jQuery(this).html());
         jQuery(this).hide();
-        jQuery(this).siblings("textarea").val(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
+        jQuery(this).siblings("textarea.payload_text").val(jQuery.trim(jQuery(this).html())).height(jQuery(this).height()+30).show();
         jQuery(this).siblings("textarea").focus();
         jQuery(this).siblings("textarea").unbind("click").click(function() {
           return false;

@@ -53,7 +53,7 @@
         <div class="title_container">
             <div class="verb_container">
                 <p class="verb {{verb}}" data-role="verb">{{verb}}</p>
-                {{#if authSchemes}}
+                {{#if security}}
                 <span class="icon_lock"></span>
                 {{/if}}
             </div>
@@ -122,9 +122,9 @@
                 <table class="table table-striped">
                     <thead>
                     <tr>
-                        <th>Name</th>
-                        <th>Values</th>
-                        <th>Description</th>
+                        <th class="col-sm-2">Name</th>
+                        <th class="col-sm-3">Values</th>
+                        <th class="col-sm-7">Description</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -146,7 +146,7 @@
                         </td>
                         <td style="vertical-align:middle">
                             <p data-role="description" data-allow-edit="true">
-                                {{{description}}}
+                                {{{ this.description }}}
                             </p>
                         </td>
                     </tr>
@@ -155,6 +155,48 @@
                 </table>
             </div>
             {{/if-header-param}}
+            {{#if body}}
+                <h3>Body Parameters</h3>
+                <hr>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead>
+                                    <tr>
+                                        <th class="col-sm-2">Name</th>
+                                        <th class="col-sm-3">Values</th>
+                                        <th class="col-sm-7">Description</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {{#each body.parameters}}
+
+                                            <tr data-role="body-param-list" data-scope="{{scope}}" data-dataType="{{dataType}}">
+                                                <td style="vertical-align:middle">
+                                                    <span data-role="name">{{this.name}}</span>
+                                                    {{#required}}
+                                                    <br/>
+                                                    <span class="required" data-role="required">(required)</span>
+                                                    {{/required}}
+                                                </td>
+                                                <td>
+                                                    {{#if required}}
+                                                    <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                                    {{else}}
+                                                    <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                                    {{/if}}
+                                                </td>
+                                                <td style="vertical-align:middle">
+                                                    <p data-role="description" data-allow-edit="true">
+                                                        {{{ this.description }}}
+                                                    </p>
+                                                </td>
+                                            </tr>
+
+                                    {{/each}}
+                                    </tbody>
+                                </table>
+                            </div>
+            {{/if}}
             {{#if attachments}}
             <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">
                 <h3>Attachments</h3>
@@ -163,9 +205,9 @@
                     <table class="table table-striped">
                         <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Value</th>
-                            <th>Description</th>
+                            <th class="col-sm-2">Name</th>
+                            <th class="col-sm-3">Value</th>
+                            <th class="col-sm-7">Description</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -211,6 +253,9 @@
         <li>
             <a href="javascript:void(0)" data-role="docs-link">Description</a>
         </li>
+        <li>
+            <a href="javascript:void(0)" data-role="schema-link">Schema</a>
+        </li>
     </ul>
     {{/if}}
     <div data-role="request-payload-docs" class="docs">
@@ -218,6 +263,9 @@
     </div>
     <div data-role="request-payload-example">
         <textarea class="payload_text" data-format="{{contentType}}"></textarea>
+    </div>
+    <div data-role="request-payload-schema">
+        <textarea class="payload_text_schema" data-format="{{contentType}}" style="width:100%;height:300px;"></textarea>
     </div>
 </div>
 {{/body}}
@@ -616,15 +664,86 @@
              jQuery("textarea.payload_text").val(model.body.sample);
          }
          else if (model.apiSchema && model.apiSchema.expandedSchema) {
+             var exampleSchemaObj = JSON.parse(model.apiSchema.expandedSchema);
+             var originalSchemaObj = JSON.parse(model.apiSchema.expandedSchema);
+             if(model.body.doc) {
+                 expandSchema(originalSchemaObj);
+                 jQuery("textarea.payload_text_schema").val(JSON.stringify(originalSchemaObj[Apigee.APIModel.resourceName].properties,null,4));
+                 jQuery("textarea.payload_text_schema").hide();
+                 examplifySchema(exampleSchemaObj);
+                 jQuery("textarea.payload_text").val(JSON.stringify(exampleSchemaObj[Apigee.APIModel.resourceName].properties,null,4));
+             }
              var expandedSchema = JSON.parse(model.apiSchema.expandedSchema);
              var swaggerModel = new Apigee.APIModel.SwaggerModel( Apigee.APIModel.resourceName, expandedSchema[Apigee.APIModel.resourceName]);
              var sampleFromAPISchema = swaggerModel.createJSONSample( false );
-             jQuery("textarea.payload_text").val(JSON.stringify(sampleFromAPISchema, null, 4));
          }
          else {
              payload.remove();
          }
     }
+    function expandSchema (obj, originalObj) {
+        for (var key in obj) {
+            if (typeof obj[key] === "object") {
+                expandSchema(obj[key], (originalObj || obj));
+            }
+            else {
+                if (key === "$ref") {
+                    if (typeof obj[key] === "string" && obj[key].indexOf("#/definitions") != -1) {
+                        var objRef = obj[key].slice(14);
+                        for (var oKey in originalObj[objRef]) {
+                            if(oKey != 'required'){
+                                obj[oKey] = originalObj[objRef][oKey];
+                            }
+                        }
+                        delete obj[key];
+                        delete obj["description"];
+                    }
+                }
+            }
+        }
+    };
 
+    function examplifySchema (obj, originalObj) {
+        for (var key in obj) {
+            if (typeof obj[key] === "object") {
+                examplifySchema(obj[key], (originalObj || obj));
+            }
+            else {
+                if (key === "$ref") {
+                    if (typeof obj[key] === "string" && obj[key].indexOf("#/definitions") != -1) {
+                        var objRef = obj[key].slice(14);
+                        for (var oKey in originalObj[objRef]) {
+                            if(oKey != 'required'){
+                                obj[oKey] = originalObj[objRef][oKey];
+                            }
+                            if(oKey === 'properties'){
+                                for(var prop in originalObj[objRef]['properties']){
+                                    if(Object.keys(originalObj[objRef]['properties'][prop]).indexOf('type') != -1) {
+                                        if(originalObj[objRef]['properties'][prop]['type'] === "integer"){
+                                            obj[oKey][prop] = 0;
+                                        }
+                                        if(originalObj[objRef]['properties'][prop]['type'] === "boolean"){
+                                            obj[oKey][prop] = false;
+                                        }
+                                        if(originalObj[objRef]['properties'][prop]['type'] === "double"){
+                                            obj[oKey][prop] = 0.0;
+                                        }
+                                        if(originalObj[objRef]['properties'][prop]['type'] === "number"){
+                                            obj[oKey][prop] = 0.0;
+                                        }
+                                        if(originalObj[objRef]['properties'][prop]['type'] === "string"){
+                                            obj[oKey][prop] = "";
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        delete obj[key];
+                        delete obj["description"];
+                    }
+                }
+            }
+        }
+    };
 </script>
 </div>
