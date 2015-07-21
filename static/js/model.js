@@ -924,27 +924,27 @@ Apigee.APIModel.Methods = function() {
   };
   this.getCustomTokenCredentials = function() {
 
-      if(Apigee.APIModel.apiKey != "") {
-          customTokenObject = {};
-          customTokenObject.tokenType = Apigee.APIModel.location;
-          customTokenObject.tokenMap = {};
-          customTokenObject.tokenMap[Apigee.APIModel.templateAuthName] = Apigee.APIModel.apiKey;
-          sessionStorage.revisionsCustomTokenCredentialsDetails = apiName +"@@@"+ revisionNumber + "@@@" + JSON.stringify(customTokenObject);;
-          sessionStorage.selectedAuthScheme = Apigee.APIModel.apiName +"@@@"+ Apigee.APIModel.revisionNumber + "@@@" + "customtoken"; // Store selected auth scheme info in session storage.;
-          jQuery("[data-role='custom_token_row']").find("[data-role='name']").val(Apigee.APIModel.templateAuthName.toLowerCase());
-          jQuery("[data-role='custom_token_row']").find("[data-role='value']").val(Apigee.APIModel.apiKey);
-          if(customTokenObject.tokenType === "query") {
-              jQuery("[data-role='custom_token_modal']").find("[data-role='query']").attr('checked','checked');
-          }
-          if(customTokenObject.tokenType === "header") {
-              jQuery("[data-role='custom_token_modal']").find("[data-role='header']").attr('checked','checked');
-          }
-          self.updateAuthContainer();
-          // Clear 'Custom Token' href and remove X
-          jQuery(".link_open_customtoken").unbind("click");
-          jQuery(".link_open_customtoken").attr("href", "")
-          jQuery(".link_open_customtoken").removeClass("link_open_customtoken");
-          jQuery("i.icon-remove").remove();
+    if(typeof Apigee.APIModel.apiKey !== 'undefined' && Apigee.APIModel.apiKey != "") {
+      customTokenObject = {};
+      customTokenObject.tokenType = Apigee.APIModel.location;
+      customTokenObject.tokenMap = {};
+      customTokenObject.tokenMap[Apigee.APIModel.templateAuthName] = Apigee.APIModel.apiKey;
+      sessionStorage.revisionsCustomTokenCredentialsDetails = apiName +"@@@"+ revisionNumber + "@@@" + JSON.stringify(customTokenObject);;
+      sessionStorage.selectedAuthScheme = Apigee.APIModel.apiName +"@@@"+ Apigee.APIModel.revisionNumber + "@@@" + "customtoken"; // Store selected auth scheme info in session storage.;
+      jQuery("[data-role='custom_token_row']").find("[data-role='name']").val(Apigee.APIModel.templateAuthName.toLowerCase());
+      jQuery("[data-role='custom_token_row']").find("[data-role='value']").val(Apigee.APIModel.apiKey);
+      if(customTokenObject.tokenType === "query") {
+        jQuery("[data-role='custom_token_modal']").find("[data-role='query']").attr('checked','checked');
+      }
+      if(customTokenObject.tokenType === "header") {
+        jQuery("[data-role='custom_token_modal']").find("[data-role='header']").attr('checked','checked');
+      }
+      self.updateAuthContainer();
+      // Clear 'Custom Token' href and remove X
+      jQuery(".link_open_customtoken").unbind("click");
+      jQuery(".link_open_customtoken").attr("href", "")
+      jQuery(".link_open_customtoken").removeClass("link_open_customtoken");
+      jQuery("i.icon-remove").remove();
     }
   };
   /**
