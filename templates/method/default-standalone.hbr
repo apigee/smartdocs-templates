@@ -50,7 +50,7 @@
                             </div>
                             <div class="description_and_url_container">
                                 <div class="description_container">
-                                    <div class="resource_description description" data-allow-edit="true" data-role="method-description">{{{description}}}</div>
+                                    <div class="resource_description markdown" data-allow-edit="true" data-role="method-description">{{{description}}}</div>
                                 </div>
                                 <h3>Resource URL</h3>
                                 <div class="url_container">
@@ -95,7 +95,7 @@
                                     {{/if}}
                         </td>
                         <td>
-                            <p class="description" data-role="description" data-allow-edit="true">{{{description}}}</p>
+                            <p class="markdown" data-role="description" data-allow-edit="true">{{{description}}}</p>
                         </td>
                     </tr>
                             {{/query-list}}
@@ -134,7 +134,7 @@
                             {{/if}}
                         </td>
                         <td style="vertical-align:middle">
-                            <p class="description" data-role="description" data-allow-edit="true">
+                            <p class="markdown" data-role="description" data-allow-edit="true">
                                 {{{ this.description }}}
                             </p>
                         </td>
@@ -174,7 +174,7 @@
                                         {{/if}}
                             </td>
                             <td>
-                                <p class="description" data-role="description" data-allow-edit="true">
+                                <p class="markdown" data-role="description" data-allow-edit="true">
                                     {{description}}
                                 </p>
                             </td>
@@ -216,7 +216,7 @@
                         {{#template-list this.parameters}}
                         <p data-scope="{{scope}}">
                             <span data-role="name">{{name}}</span>
-                            <span class="description" data-role="description">{{description}}</span>
+                            <span class="markdown" data-role="description">{{description}}</span>
                             <span data-role="defaultValue">{{defaultValue}}</span>
                             <span data-role="required">{{required}}</span>
                         </p>
@@ -300,7 +300,7 @@
                                 <span data-role="code">{{code}}</span>
                             </div>
                             <div class="method_data description">
-            <p class="description" data-role="description" data-allow-edit="true">
+            <p class="markdown" data-role="description" data-allow-edit="true">
                                     {{{description}}}
             </p>
                             </div>
@@ -626,7 +626,7 @@
         <script src="https://smartdocs.apigee.com/6/static/js/controller.js" type="text/javascript"></script>
         <script src="https://earth2marsh.github.io/gh/marked.js" type="text/javascript"></script>
 		<script>
-		var descriptions = document.getElementsByClassName("description");
+		var descriptions = document.getElementsByClassName("markdown");
         for (var i=0;i<descriptions.length;i++) { 
             descriptions[i].innerHTML = marked(descriptions[i].innerHTML);
 		}
