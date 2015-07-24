@@ -624,13 +624,12 @@
         <script src="https://smartdocs.apigee.com/6/static/js/base64_min.js" type="text/javascript"></script>
         <script src="https://smartdocs.apigee.com/6/static/js/model.js" type="text/javascript"></script>
         <script src="https://smartdocs.apigee.com/6/static/js/controller.js" type="text/javascript"></script>
-        <script type="text/javascript" src="https://simonwaldherr.github.io/micromarkdown.js/micromarkdown.js"></script>
-				<script>
-					var descriptions = document.getElementsByClassName("description");
-
-					for (var i=0;i<descriptions.length;i++) { 
-							descriptions[i].innerHTML = micromarkdown.parse(descriptions[i].innerHTML);
-					}
-				</script>
+        <script src="https://www.javascriptoo.com/application/html/js/chjj/marked/marked.js" type="text/javascript"></script>
+		<script>
+		var descriptions = document.getElementsByClassName("description");
+        for (var i=0;i<descriptions.length;i++) { 
+            descriptions[i].innerHTML = marked(descriptions[i].innerHTML);
+		}
+		</script>
     </body>
 </html>
