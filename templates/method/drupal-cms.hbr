@@ -197,6 +197,7 @@
                                 </table>
                             </div>
             {{/if}}
+            {{#body}}
             {{#if attachments}}
             <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">
                 <h3>Attachments</h3>
@@ -238,6 +239,7 @@
                 </div>
             </form>
             {{/if}}
+            {{/body}}
         </div>
     </div>
 </div>
