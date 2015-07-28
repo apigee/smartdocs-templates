@@ -144,6 +144,7 @@
                 </table>
                                     </div>
             {{/if-header-param}}
+            {{#body}}
             {{#if attachments}}
                         <form enctype="multipart/form-data" method="post" name="formAttachment" id="formAttachment">
                                 <h3>Attachments</h3>
@@ -184,7 +185,8 @@
                     </table>
                     </div>
             </form>
-                        {{/if}}
+            {{/if}}
+            {{/body}}
                         </div>
                         </div>
                     </div>
