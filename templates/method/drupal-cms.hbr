@@ -155,9 +155,11 @@
                 </table>
             </div>
             {{/if-header-param}}
-            {{#if body}}
+            {{#if body.parameters}}
                 <h3>Body Parameters</h3>
                 <hr>
+                    <form enctype="multipart/form-data" method="post" name="formParams" id="formParams">
+
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead>
@@ -196,6 +198,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                    </form>
             {{/if}}
             {{#body}}
             {{#if attachments}}

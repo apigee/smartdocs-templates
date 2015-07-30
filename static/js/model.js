@@ -571,7 +571,7 @@ Apigee.APIModel.Methods = function() {
     if(model.apiSchema && model.apiSchema.expandedSchema) {
       Apigee.APIModel.expandedSchema = JSON.parse(model.apiSchema.expandedSchema); // Parse and hold internal API schema.
     }
-    if(Apigee.APIModel.expandedSchema) {
+    if(Apigee.APIModel.resourceName != '' && Apigee.APIModel.expandedSchema[Apigee.APIModel.resourceName]) {
       var swaggerModel = new Apigee.APIModel.SwaggerModel( Apigee.APIModel.resourceName, Apigee.APIModel.expandedSchema[Apigee.APIModel.resourceName]);
       var sampleFromAPISchema = swaggerModel.createJSONSample( false );
       jQuery("textarea.payload_text").val(JSON.stringify(sampleFromAPISchema,null,4));
@@ -1277,8 +1277,17 @@ Apigee.APIModel.Methods = function() {
       }
     }
 
-    if (bodyPayload) {
+    if (bodyPayload && bodyPayload.replace) {
       results.push('-d "' + bodyPayload.replace(/"/g, '\\"') + '"');
+    } else {
+        jQuery("#formAttachment :input").each(function(index, obj){
+            var $obj = jQuery(obj);
+            var value = $obj.val();
+            if(jQuery(obj).attr('type') == 'file') {
+                value = "@" + $obj[0].files[0].name;
+            }
+            results.push('-F "' + $obj.attr('name') + "=" + value + '"');
+        });
     }
 
     Apigee.curl = 'curl ' + (results.join(' ')) + ' "' + targetUrl + '"';
