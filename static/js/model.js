@@ -568,7 +568,7 @@ Apigee.APIModel.Methods = function() {
     jQuery("#method_content").show();
 
     //Swagger API Schema implementation
-    if(model.apiSchema.expandedSchema) {
+    if(model.apiSchema && model.apiSchema.expandedSchema) {
       Apigee.APIModel.expandedSchema = JSON.parse(model.apiSchema.expandedSchema); // Parse and hold internal API schema.
     }
     if(Apigee.APIModel.expandedSchema) {
