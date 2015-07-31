@@ -155,9 +155,11 @@
                 </table>
             </div>
             {{/if-header-param}}
-            {{#if body}}
+            {{#if body.parameters}}
                 <h3>Body Parameters</h3>
                 <hr>
+                    <form enctype="multipart/form-data" method="post" name="formParams" id="formParams">
+
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                     <thead>
@@ -196,6 +198,7 @@
                                     </tbody>
                                 </table>
                             </div>
+                    </form>
             {{/if}}
             {{#body}}
             {{#if attachments}}
@@ -666,18 +669,12 @@
              jQuery("textarea.payload_text").val(model.body.sample);
          }
          else if (model.apiSchema && model.apiSchema.expandedSchema) {
-             var exampleSchemaObj = JSON.parse(model.apiSchema.expandedSchema);
              var originalSchemaObj = JSON.parse(model.apiSchema.expandedSchema);
              if(model.body.doc) {
                  expandSchema(originalSchemaObj);
                  jQuery("textarea.payload_text_schema").val(JSON.stringify(originalSchemaObj[Apigee.APIModel.resourceName].properties,null,4));
                  jQuery("textarea.payload_text_schema").hide();
-                 examplifySchema(exampleSchemaObj);
-                 jQuery("textarea.payload_text").val(JSON.stringify(exampleSchemaObj[Apigee.APIModel.resourceName].properties,null,4));
              }
-             var expandedSchema = JSON.parse(model.apiSchema.expandedSchema);
-             var swaggerModel = new Apigee.APIModel.SwaggerModel( Apigee.APIModel.resourceName, expandedSchema[Apigee.APIModel.resourceName]);
-             var sampleFromAPISchema = swaggerModel.createJSONSample( false );
          }
          else {
              payload.remove();
@@ -695,49 +692,6 @@
                         for (var oKey in originalObj[objRef]) {
                             if(oKey != 'required'){
                                 obj[oKey] = originalObj[objRef][oKey];
-                            }
-                        }
-                        delete obj[key];
-                        delete obj["description"];
-                    }
-                }
-            }
-        }
-    };
-
-    function examplifySchema (obj, originalObj) {
-        for (var key in obj) {
-            if (typeof obj[key] === "object") {
-                examplifySchema(obj[key], (originalObj || obj));
-            }
-            else {
-                if (key === "$ref") {
-                    if (typeof obj[key] === "string" && obj[key].indexOf("#/definitions") != -1) {
-                        var objRef = obj[key].slice(14);
-                        for (var oKey in originalObj[objRef]) {
-                            if(oKey != 'required'){
-                                obj[oKey] = originalObj[objRef][oKey];
-                            }
-                            if(oKey === 'properties'){
-                                for(var prop in originalObj[objRef]['properties']){
-                                    if(Object.keys(originalObj[objRef]['properties'][prop]).indexOf('type') != -1) {
-                                        if(originalObj[objRef]['properties'][prop]['type'] === "integer"){
-                                            obj[oKey][prop] = 0;
-                                        }
-                                        if(originalObj[objRef]['properties'][prop]['type'] === "boolean"){
-                                            obj[oKey][prop] = false;
-                                        }
-                                        if(originalObj[objRef]['properties'][prop]['type'] === "double"){
-                                            obj[oKey][prop] = 0.0;
-                                        }
-                                        if(originalObj[objRef]['properties'][prop]['type'] === "number"){
-                                            obj[oKey][prop] = 0.0;
-                                        }
-                                        if(originalObj[objRef]['properties'][prop]['type'] === "string"){
-                                            obj[oKey][prop] = "";
-                                        }
-                                    }
-                                }
                             }
                         }
                         delete obj[key];
