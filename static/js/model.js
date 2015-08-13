@@ -1226,11 +1226,13 @@ Apigee.APIModel.Methods = function() {
           urlToTest += "&multiparttypes="+multiPartTypes;
         }
       } else {
+        var newHeaderList = [];
         for (var i=0,l=headersList.length; i<l; i++) {
-          if (headersList[i].name == "Content-Type") {
-            headersList.splice(i,1)
+          if (headersList[i].name != "Content-Type") {
+            newHeaderList[newHeaderList.length] = headersList[i];
           }
         }
+        headersList = newHeaderList;
         if (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='attachments-list']").length) {
           urlToTest += "&multiparttypes=text+attachment";
         }
