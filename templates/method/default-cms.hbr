@@ -34,7 +34,7 @@
                     <div>
                         <p class="title">Category</p>
                         <p class="data" data-role="category">
-                            {{#each tags}}{{.}},{{/each}}
+                            {{#each tags}}{{.}}{{#unless @last}},{{/unless}}{{/each}}
                         </p>
                     </div>
                 </div><!--/.resource_summary -->
