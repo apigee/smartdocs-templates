@@ -1387,7 +1387,7 @@ Apigee.APIModel.Methods = function() {
     }
     requestContainerString += "</dl>";
     requestContainerElement.html(requestContainerString);
-    curlContainerElement.html("<pre>"+Apigee.curl+"</pre>");
+    curlContainerElement.html("<pre>" + Apigee.curl.replace(/&/, '&amp;').replace(/</, '&lt;').replace(/>/, '&gt;').replace(/"/, '&quot;').replace(/'/, '&#39;') + "</pre>");
     // Resquest content construction.
     bodyContent = unescape(data.requestContent);
     bodyContent = bodyContent.replace(/[^\x00-\x7F]/g, "###");
