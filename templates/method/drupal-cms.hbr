@@ -413,16 +413,19 @@
                             </p>
                         </td>
                     </tr>
-                    <tr>
-                        <td>
-                            <p class="title">Category</p>
-                        </td>
-                        <td>
-                            <p class="data" data-role="category">
-                                {{#each tags}}{{.}}{{#unless @last}},{{/unless}}{{/each}}
-                            </p>
-                        </td>
-                    </tr>
+                    {{!-- Only output Category if it exists --}}
+                    {{#if tags}}
+                        <tr>
+                            <td>
+                                <p class="title">Category</p>
+                            </td>
+                            <td>
+                                <p class="data" data-role="category">
+                                    {{#each tags}}{{.}}{{#unless @last}},{{/unless}}{{/each}}
+                                </p>
+                            </td>
+                        </tr>
+                    {{/if}}
                     </tbody>
                 </div><!--/.resource_summary -->
             </table>
