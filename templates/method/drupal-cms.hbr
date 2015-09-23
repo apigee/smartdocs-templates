@@ -172,27 +172,27 @@
                                     <tbody>
                                     {{#each body.parameters}}
 
-                                            <tr data-role="body-param-list" data-scope="{{scope}}" data-dataType="{{dataType}}">
-                                                <td style="vertical-align:middle">
-                                                    <span data-role="name">{{this.name}}</span>
-                                                    {{#required}}
+                                        <tr data-role="body-param-list" data-scope="{{scope}}" data-dataType="{{dataType}}">
+                                            <td style="vertical-align:middle">
+                                                <span data-role="name">{{this.name}}</span>
+                                                {{#required}}
                                                     <br/>
                                                     <span class="required" data-role="required">(required)</span>
-                                                    {{/required}}
-                                                </td>
-                                                <td>
-                                                    {{#if required}}
-                                                    <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
-                                                    {{else}}
-                                                    <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
-                                                    {{/if}}
-                                                </td>
-                                                <td style="vertical-align:middle">
-                                                    <p data-role="description" data-allow-edit="true">
-                                                        {{{ this.description }}}
-                                                    </p>
-                                                </td>
-                                            </tr>
+                                                {{/required}}
+                                            </td>
+                                            <td>
+                                                {{#if required}}
+                                                    <input name="{{this.name}}" type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                                {{else}}
+                                                    <input name="{{this.name}}" type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                                {{/if}}
+                                            </td>
+                                            <td style="vertical-align:middle">
+                                                <p data-role="description" data-allow-edit="true">
+                                                    {{{ this.description }}}
+                                                </p>
+                                            </td>
+                                        </tr>
 
                                     {{/each}}
                                     </tbody>
