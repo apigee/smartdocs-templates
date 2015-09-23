@@ -1257,6 +1257,10 @@ Apigee.APIModel.Methods = function() {
 
     results.push('-X ' + methodVerb.toUpperCase());
 
+    // If the Content-Type is set, put that in cURL display.
+    if (contentTypeValue) {
+      results.push('--header "Content-Type: ' + contentTypeValue + '"');
+    }
     if (headersList) {
       for (var i=0,l=headersList.length; i<l; i++) {
         results.push('--header "' + headersList[i].name + ': ' + headersList[i].value + '"');
