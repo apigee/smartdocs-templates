@@ -1,4 +1,20 @@
-<div class="row">
+<!-- Apigee Dev Portal Method Template -->
+{{!--
+Apigee Dev Portal Method Template
+
+Available variables:
+  - apiId: The UUID of the model.
+  - apiName: The unique name of the model, for example 'petstore-example'.
+  - apiRevisionId: The revision of the model.
+  - baseUrl: The base URL of the model, for example 'http://api.apigee.com/v1'
+  - body: An object of attributes relating to the method body:
+     - contentType: The allowed Content-Type values of the body.
+     - parameters: An array of body parameters, will be populated with values
+       from Swagger 2.0 "in": "formData" parameters.
+Helper variables:
+  - none
+--}}
+<div class="row smartdocs-wrapper">
 <style>
     body section.page-header {
         display:none;
@@ -138,10 +154,18 @@
                             {{/required}}
                         </td>
                         <td>
-                            {{#if required}}
-                            <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                            {{#if options}}
+                                <select name="{{name}}" data-role="multiple-value">
+                                    {{#options}}
+                                        <option value="{{.}}">{{.}}</option>
+                                    {{/options}}
+                                </select>
                             {{else}}
-                            <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                {{#if required}}
+                                    <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                {{else}}
+                                    <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                {{/if}}
                             {{/if}}
                         </td>
                         <td style="vertical-align:middle">
