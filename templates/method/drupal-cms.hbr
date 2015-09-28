@@ -16,39 +16,15 @@ Helper variables:
 --}}
 <div class="row smartdocs-wrapper">
 <style>
-    body section.page-header {
-        display:none;
-
-    }
-
-    .CodeMirror {
-        min-height:150px;
-    }
-
-    .CodeMirror-scroll {
-        padding:0;
-    }
-
+    body section.page-header {display:none}
+    .CodeMirror {min-height:150px}
+    .CodeMirror-scroll {padding:0}
     /* Responsiveness */
-    @media(max-width:767px) {
-
-    }
-
-    @media(min-width:768px) {
-
-    }
-
-    @media(min-width:992px) {
-
-    }
-
-    @media(min-width:1200px) {
-
-    }
-
-    @media(min-width:1400px) {
-
-    }
+    @media(max-width:767px) {}
+    @media(min-width:768px) {}
+    @media(min-width:992px) {}
+    @media(min-width:1200px) {}
+    @media(min-width:1400px) {}
 </style>
 <!-- Main content -->
 <div class="col-sm-9" id="method_content">
@@ -115,10 +91,19 @@ Helper variables:
                             {{/required}}
                         </td>
                         <td>
-                            {{#if required}}
-                            <input type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                            {{#if options}}
+                            <select name="{{name}}" data-role="multiple-value" data-default-value="{{defaultValue}}" class="form-control">
+                                {{#if required}}{{else}}<option value="">(no value)</option>{{/if}}
+                                {{#options}}
+                                <option value="{{.}}">{{.}}</option>
+                                {{/options}}
+                            </select>
                             {{else}}
-                            <input type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                {{#if required}}
+                                    <input name="{{name}}" type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                {{else}}
+                                    <input name="{{name}}" type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                {{/if}}
                             {{/if}}
                         </td>
                         <td>
@@ -155,7 +140,8 @@ Helper variables:
                         </td>
                         <td>
                             {{#if options}}
-                                <select name="{{name}}" data-role="multiple-value">
+                                <select name="{{name}}" data-role="multiple-value" data-default-value="{{defaultValue}}" class="form-control">
+                                    {{#if required}}{{else}}<option value="">(no value)</option>{{/if}}
                                     {{#options}}
                                         <option value="{{.}}">{{.}}</option>
                                     {{/options}}
@@ -205,10 +191,19 @@ Helper variables:
                                                 {{/required}}
                                             </td>
                                             <td>
-                                                {{#if required}}
-                                                    <input name="{{this.name}}" type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                                {{#if options}}
+                                                <select name="{{this.name}}" data-role="multiple-value" data-default-value="{{defaultValue}}" class="form-control">
+                                                    {{#if required}}{{else}}<option value="">(no value)</option>{{/if}}
+                                                    {{#options}}
+                                                    <option value="{{.}}">{{.}}</option>
+                                                    {{/options}}
+                                                </select>
                                                 {{else}}
-                                                    <input name="{{this.name}}" type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                                    {{#if required}}
+                                                        <input name="{{this.name}}" type="text" class="form-control" data-role="value" value="{{defaultValue}}"/>
+                                                    {{else}}
+                                                        <input name="{{this.name}}" type="text" class="form-control" data-role="value" placeholder="{{defaultValue}}" value=""/>
+                                                    {{/if}}
                                                 {{/if}}
                                             </td>
                                             <td style="vertical-align:middle">
@@ -270,6 +265,7 @@ Helper variables:
         </div>
     </div>
 </div>
+{{#if body.parameters}}{{else}}
 {{#body}}
 <!-- Request payload section -->
 <div class="request_payload">
@@ -298,6 +294,7 @@ Helper variables:
     </div>
 </div>
 {{/body}}
+{{/if}}
 {{#if-template-param this.parameters}}
 <div class="hide" data-role="template-params">
     {{#template-list this.parameters}}
@@ -445,7 +442,7 @@ Helper variables:
                             </td>
                             <td>
                                 <p class="data" data-role="category">
-                                    {{#each tags}}{{.}}{{#unless @last}},{{/unless}}{{/each}}
+                                    {{#each tags}}{{.}}{{#unless @last}}, {{/unless}}{{/each}}
                                 </p>
                             </td>
                         </tr>
@@ -618,8 +615,8 @@ Helper variables:
 </div>
 <!-- /.modal -->
 <script type="text/javascript">
-    var Apigee = Apigee || {}; // Look for a namespace 'Apigee', if it is not there, creates an empty one.
-    Apigee.APIModel = Apigee.APIModel || {}; // Look for a namespace 'APIModel' under 'Apigee', if it is not there, creates an empty one.
+    var Apigee = Apigee || {}; {{!-- Look for a namespace 'Apigee', if it is not there, creates an empty one. --}}
+    Apigee.APIModel = Apigee.APIModel || {}; {{!-- Look for a namespace 'APIModel' under 'Apigee', if it is not there, creates an empty one. --}}
     Apigee.APIModel.apiName = "{{apiName}}";
     Apigee.APIModel.revisionNumber = "{{revisionNumber}}";
     Apigee.APIModel.organizationName = "{{organizationName}}";
@@ -627,23 +624,38 @@ Helper variables:
     Apigee.APIModel.methodId = "{{id}}";
     Apigee.APIModel.methodType = "details";
     Apigee.APIModel.apiKey = "";
-    Apigee.APIModel.location = ""; // will be 'header' or 'query'
+    Apigee.APIModel.location = "";
     Apigee.APIModel.templateAuthName = "";
-    var model = {{this}};
-    Apigee.APIModel.resourceName = "";
-    if(model.body && model.body.parameters) {
-        for(var i in model.body.parameters) {
-            if(model.body.parameters[i].schema) {
-                Apigee.APIModel.resourceName = JSON.parse(model.body.parameters[0].schema).$ref;
-                Apigee.APIModel.resourceName = Apigee.APIModel.resourceName.split("/");
-                Apigee.APIModel.resourceName = Apigee.APIModel.resourceName[Apigee.APIModel.resourceName.length-1];
+    Apigee.APIModel.verb="{{verb}}".toLowerCase();
+    {{#if body}}
+    Apigee.APIModel.bodyParameters={{#if body.parameters}}{{{body.parameters}}}{{else}}false{{/if}};
+    Apigee.APIModel.bodySample={{#if body.sample}}"{{{body.sample}}}"{{else}}false{{/if}};
+    Apigee.APIModel.bodyDoc={{#if body.doc}}"{{{body.doc}}}"{{else}}false{{/if}};
+    {{else}}
+    Apigee.APIModel.bodyParameters=false;
+    Apigee.APIModel.bodySample=false;
+    Apigee.APIModel.bodyDoc=false;
+    {{/if}}
+    Apigee.APIModel.security={{#if security}}{{{security}}}{{else}}false{{/if}};
+    Apigee.APIModel.expandedSchema={{#if apiSchema.expandedSchema}}{{{apiSchema.expandedSchema}}}{{else}}false{{/if}};
+
+    if(Apigee.APIModel.bodyParameters) {
+        for(var i in Apigee.APIModel.bodyParameters) {
+            if(Apigee.APIModel.bodyParameters[i].schema) {
+                var resourceSchema = JSON.parse(Apigee.APIModel.bodyParameters[i].schema);
+                if (resourceSchema.$ref) {
+                    Apigee.APIModel.resourceName = resourceSchema.$ref;
+                    Apigee.APIModel.resourceName = Apigee.APIModel.resourceName.split("/");
+                    Apigee.APIModel.resourceName = Apigee.APIModel.resourceName[Apigee.APIModel.resourceName.length - 1];
+                    break;
+                }
             }
         }
     }
     var security = [];
-    if(model.security) {
-        for (i=0;i<model.security.length;i++){
-            security.push(JSON.parse(model.security[i]));
+    if(Apigee.APIModel.security) {
+        for (i=0;i<Apigee.APIModel.security.length;i++){
+            security.push(Apigee.APIModel.security[i]);
         }
     }
 
@@ -684,20 +696,19 @@ Helper variables:
     if (jQuery("[data-role='auth-type']").text() === "") {
         jQuery("[data-role='auth-type']").append("None");
     }
-    var methodVerb = jQuery.trim(jQuery("[data-role='verb']:first").text().toLowerCase()); // Retrieve the verb from the first HTML element.
     var payload = jQuery(".request_payload")
-    if (methodVerb != "post" && methodVerb != "put" && methodVerb != "patch") {
-        // remove request payload
+    if (Apigee.APIModel.verb != "post" && Apigee.APIModel.verb != "put" && Apigee.APIModel.verb != "patch") {
+        // Remove request payload for verbs that carry no payload.
         payload.remove();
     }
     else {
          // If a sample exists, use it to populate the body payload textarea, else create an example from the api schema to populate the body payload
-         if (model.body && model.body.sample) {
-             jQuery("textarea.payload_text").val(model.body.sample);
+         if (Apigee.APIModel.bodySample) {
+             jQuery("textarea.payload_text").val(Apigee.APIModel.bodySample);
          }
-         else if (model.apiSchema && model.apiSchema.expandedSchema) {
-             var originalSchemaObj = JSON.parse(model.apiSchema.expandedSchema);
-             if(model.body.doc) {
+         else if (Apigee.APIModel.expandedSchema) {
+             var originalSchemaObj = Apigee.APIModel.expandedSchema;
+             if(Apigee.APIModel.bodyDoc) {
                  expandSchema(originalSchemaObj);
                  jQuery("textarea.payload_text_schema").val(JSON.stringify(originalSchemaObj[Apigee.APIModel.resourceName].properties,null,4));
                  jQuery("textarea.payload_text_schema").hide();

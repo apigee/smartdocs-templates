@@ -552,9 +552,6 @@ Apigee.APIModel.Methods = function() {
     jQuery("#method_content").show();
 
     //Swagger API Schema implementation
-    if(model.apiSchema && model.apiSchema.expandedSchema) {
-      Apigee.APIModel.expandedSchema = JSON.parse(model.apiSchema.expandedSchema); // Parse and hold internal API schema.
-    }
     if(Apigee.APIModel.resourceName != '' && Apigee.APIModel.expandedSchema[Apigee.APIModel.resourceName]) {
       var swaggerModel = new Apigee.APIModel.SwaggerModel( Apigee.APIModel.resourceName, Apigee.APIModel.expandedSchema[Apigee.APIModel.resourceName]);
       var sampleFromAPISchema = swaggerModel.createJSONSample( false );
@@ -566,7 +563,7 @@ Apigee.APIModel.Methods = function() {
     }
 
     window.apiModelEditor.initRequestPayloadEditor(); // Initialize the request payload sample editor.
-    window.apiModelSchema.initRequestPayloadSchema(); // Initialize the request payload sample schema.
+    //window.apiModelSchema.initRequestPayloadSchema(); // Initialize the request payload sample schema.
     if (typeof Drupal != "undefined" && typeof Drupal.settings != "undefined" && typeof Drupal.settings.smartdocs != "undefined" && Drupal.settings.smartdocs.dataProxyUrl) {
       Apigee.APIModel.proxyURL = Drupal.settings.smartdocs.dataProxyUrl + "/sendrequest";
       Apigee.APIModel.authUrl = Drupal.settings.smartdocs.dataAuthUrl;
