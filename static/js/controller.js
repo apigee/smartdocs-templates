@@ -12,11 +12,13 @@ var apiModelCommon; // An Instance of a 'Apigee.APIModel.Common' class.
 var apiModelMethods; // An Instance of a 'Apigee.APIModel.Methods' class.
 var apiModelInlineEdit; // An Instance of a 'Apigee.APIModel.InlineEdit' class.
 var apiModelEditor;
+var apiModelSchema;
 Apigee.APIModel.authUrl = "";
 Apigee.APIModel.proxyURL; // Stores proxy URL.
 
 jQuery(function() {
     apiModelEditor = new Apigee.APIModel.Editor();
+    apiModelSchema = new Apigee.APIModel.Schema();
     apiModelCommon = new Apigee.APIModel.Common();
     if (localStorage.getItem("unsupportedBrowserFlag") == null) {
         apiModelCommon.showUnsupportedBrowserAlertMessage();
@@ -154,8 +156,18 @@ setAccessTokenAndLocation = function(errorCode, errorMessage, accessToken, acces
     oauth2Credentials.errorCode = errorCode;
     oauth2Credentials.errorMessage = errorMessage;
     oauth2Credentials.accessToken  = accessToken;
-    oauth2Credentials.accessTokenType = accessTokenType;
+    oauth2Credentials.accessTokenType = accessTokenType.toLowerCase();
     oauth2Credentials.accessToeknParamName = accessToeknParamName;
     oauth2Credentials.proxyURL = proxyURL;
     apiModelMethods.setOAuth2Credentials(oauth2Credentials);
 }
+
+/**
+ * Event handler to handle the Oauth token message
+ */
+function oAuthAccessTokenAndLocationListener(e) {
+  var obj = e.data;
+  setAccessTokenAndLocation(obj.ERRORCODE, obj.ERRORMESSAGE, obj.ACCESSTOKEN, obj.ACCESSTOKENTYPE, obj.ACCESSTOKENPARAMNAME, obj.PROXYURL);
+}
+//Add a listener to listen for the oauth token message
+window.addEventListener('message', oAuthAccessTokenAndLocationListener, false);
