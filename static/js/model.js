@@ -36,6 +36,9 @@ Apigee.APIModel.Common = function() {
     theParent.appendChild(theKid);
     theParent.insertBefore(theKid, theParent.firstChild);
   };
+  isOldMSIE = function() {
+    return (navigator.appName == 'Microsoft Internet Explorer' && navigator.userAgent.match(/msie [6-9]/i));
+  };
 
   // Public methods.
   /**
@@ -49,7 +52,7 @@ Apigee.APIModel.Common = function() {
     if (requestUrl.indexOf("targeturl=") != -1) {
       requestUrl = requestUrl.split("targeturl=")[0].toString();
     }
-    if (jQuery.browser.msie && window.XDomainRequest && parseInt(jQuery.browser.version) <= 9 && requestUrl.indexOf(currentHost) == -1) {
+    if (isOldMSIE() && window.XDomainRequest && requestUrl.indexOf(currentHost) == -1) {
       var requestURL = request.url;
       var defaultMethodType = (request.type) ? request.type : "get";
       if (requestURL.indexOf("targeturl") != -1) {
@@ -1085,7 +1088,7 @@ Apigee.APIModel.Methods = function() {
         }
       }
     }
-    if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9 && jQuery("[data-role='body-param-list']").length) {
+    if (isOldMSIE() && jQuery("[data-role='body-param-list']").length) {
       headersList.push({"name" : "Content-Type", "value" : "application/x-www-form-urlencoded"});
     }
     urlToTest = urlToTest.replace(/\{/g,"").replace(/\}/g,"");
@@ -1153,7 +1156,7 @@ Apigee.APIModel.Methods = function() {
     var processDataValue = true;
     if (jQuery("[data-role='attachments-list']").length || (jQuery('[data-role="request-payload-example"]').length && jQuery("[data-role='body-param-list']").length)) {
       var multiPartTypes = "";
-      if ( jQuery.browser.msie && parseInt(jQuery.browser.version) <= 9) {
+      if (isOldMSIE()) {
         if (localStorage.getItem("unsupportedAttachmentFlag") == null) {
           self.showUnsupportedAttachmentAlertMessage();
         }
