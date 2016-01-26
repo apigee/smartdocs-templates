@@ -1021,7 +1021,12 @@ Apigee.APIModel.Methods = function() {
 
         if (jQuery.trim(queryParamValue).length >= 1) {
           var separator = (isFistParam) ? "" : "&";
-          queryParamString += separator + queryParamName + "=" + encodeURIComponent(decodeURIComponent(queryParamValue));
+          try{
+              queryParamValue = decodeURIComponent(queryParamValue);
+          }catch(e){
+              //Ignore any decoding error
+          }
+          queryParamString += separator + queryParamName + "=" + encodeURIComponent(queryParamValue);
           isFistParam = false;
         }
 
